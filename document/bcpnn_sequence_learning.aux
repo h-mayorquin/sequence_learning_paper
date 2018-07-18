@@ -1,0 +1,131 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{lashley1951problem}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Sequence Learning}{1}{subsection.1.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}The BCPNN}{1}{subsection.1.2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces A schematic of how the BCPNN learning rules associates weights to different probability scenarios.}}{1}{figure.1}}
+\newlabel{fig:bcpnn_probabilities}{{1}{1}{A schematic of how the BCPNN learning rules associates weights to different probability scenarios}{figure.1}{}}
+\citation{roach2016memory}
+\citation{recanatesi2017memory}
+\citation{recanatesi2017memory}
+\citation{sandberg2002bayesian}
+\citation{tully2016spike}
+\newlabel{eq:prob_counting}{{1}{2}{The BCPNN}{equation.1.1}{}}
+\newlabel{eq:prob_counting_co}{{2}{2}{The BCPNN}{equation.1.2}{}}
+\newlabel{eq:bcpnn_beta}{{3}{2}{The BCPNN}{equation.1.3}{}}
+\newlabel{eq:bcpnn_w}{{4}{2}{The BCPNN}{equation.1.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}A simple phenomenological theory of sequence recall}{2}{subsection.1.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}The BCPNN as a Sequence Learning Network}{2}{section.2}}
+\citation{yuille1998winner}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Sequence Recall}{3}{subsection.2.1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces A simple BCPNN network with only one type of connectivity.}}{3}{figure.2}}
+\newlabel{fig:bcpnn_simple_network}{{2}{3}{A simple BCPNN network with only one type of connectivity}{figure.2}{}}
+\newlabel{eq:simple_bcpnn}{{5}{4}{Sequence Recall}{equation.2.5}{}}
+\newlabel{eq:simple_bcpnn_max}{{6}{4}{Sequence Recall}{equation.2.6}{}}
+\newlabel{eq:simple_bcpnn_adaptation}{{7}{4}{Sequence Recall}{equation.2.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces An instance of recall in the simple BCPNN neural network. a) Unit activity starting with the cue. b) the time course of the adaptation for each unit. c) the self-excitatory current minus the adaptation current, note that this quantity crossing the value of $w_{next}$ (depicted here with a dotted line) marks the transition point from one unit to the next. d) The connectivity matrix where we have included pointers to the three most important quantities $w_{self}$ for the self-excitatory weight, $w_{next}$ for the inhibitory connection to the next element and $w_{rest}$ for the rest of the connections.}}{5}{figure.3}}
+\newlabel{fig:bcpnn_simple_recall}{{3}{5}{An instance of recall in the simple BCPNN neural network. a) Unit activity starting with the cue. b) the time course of the adaptation for each unit. c) the self-excitatory current minus the adaptation current, note that this quantity crossing the value of $w_{next}$ (depicted here with a dotted line) marks the transition point from one unit to the next. d) The connectivity matrix where we have included pointers to the three most important quantities $w_{self}$ for the self-excitatory weight, $w_{next}$ for the inhibitory connection to the next element and $w_{rest}$ for the rest of the connections}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.1}Persistence Time}{5}{subsubsection.2.1.1}}
+\citation{murray2017learning}
+\newlabel{eq:simple_bcpnn_persistence_time}{{8}{6}{Persistence Time}{equation.2.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Persistence time relationship with the parameters. a) We can appreciate that the persistence time grows linearly with $\tau _a$, the adaptation current time constant. b) Here we depict the logarithimic dependence of $T_{persistence}$ on $g_a$. c) The same dependence for $g_w$. d) We illustrate here the effects of making the weight differential bigger (note that $w_{self}=1$ in this plot). }}{7}{figure.4}}
+\newlabel{fig:simple_bcpnn_comparison}{{4}{7}{Persistence time relationship with the parameters. a) We can appreciate that the persistence time grows linearly with $\tau _a$, the adaptation current time constant. b) Here we depict the logarithimic dependence of $T_{persistence}$ on $g_a$. c) The same dependence for $g_w$. d) We illustrate here the effects of making the weight differential bigger (note that $w_{self}=1$ in this plot)}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Sequence Learning}{8}{subsection.2.2}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Off-line learning rule}{8}{subsubsection.2.2.1}}
+\newlabel{eq:bcpnn_off_line_prob}{{9}{8}{Off-line learning rule}{equation.2.9}{}}
+\newlabel{eq:bcpnn_off_line_joint}{{10}{8}{Off-line learning rule}{equation.2.10}{}}
+\newlabel{fig:off_line_rule_signal}{{2.2.1}{8}{Off-line learning rule}{equation.2.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces left: a collection of patterns presented to the neural network. right) The same set of patterns }}{8}{figure.5}}
+\newlabel{fig:off_line_rule_weights}{{2.2.1}{9}{Off-line learning rule}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces left) estimation of both co-activations and $w$ for the discrete presentation of patterns. right) estimation of both co-activations and $w$ for the continuous signal. }}{9}{figure.6}}
+\newlabel{eq:flitering}{{11}{9}{Off-line learning rule}{equation.2.11}{}}
+\newlabel{fig:off_line_rule_filter}{{2.2.1}{10}{Off-line learning rule}{equation.2.11}{}}
+\newlabel{fig:off_line_rule_filters_weights}{{2.2.1}{10}{Off-line learning rule}{equation.2.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Results of training with different training times. a) The weights after training. b) probabilities after training.}}{11}{figure.7}}
+\newlabel{fig:off_line_learning_training_time}{{7}{11}{Results of training with different training times. a) The weights after training. b) probabilities after training}{figure.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Results of training with different training times. a) The weights after training. b) probabilities after training.}}{11}{figure.8}}
+\newlabel{fig:off_line_learning_training_time2}{{8}{11}{Results of training with different training times. a) The weights after training. b) probabilities after training}{figure.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Results of training with different values of $\tau _z$. a) The weights after training. b) probabilities after training.}}{11}{figure.9}}
+\newlabel{fig:off_line_learning_tau_z}{{9}{11}{Results of training with different values of $\tau _z$. a) The weights after training. b) probabilities after training}{figure.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Results of training with different training times. a) The weights after training. b) probabilities after training.}}{12}{figure.10}}
+\newlabel{fig:off_line_learning_tau_z2}{{10}{12}{Results of training with different training times. a) The weights after training. b) probabilities after training}{figure.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Results of training with different number of epochs. a) The weights after training. b) probabilities after training.}}{12}{figure.11}}
+\newlabel{fig:off_line_learning_epochs}{{11}{12}{Results of training with different number of epochs. a) The weights after training. b) probabilities after training}{figure.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Results of training with different training times. a) The weights after training. b) probabilities after training.}}{12}{figure.12}}
+\newlabel{fig:off_line_learning_epochs2}{{12}{12}{Results of training with different training times. a) The weights after training. b) probabilities after training}{figure.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Results of training with different values of the inter sequence interval. a) The weights after training. b) probabilities after training.}}{13}{figure.13}}
+\newlabel{fig:off_line_learning_ISI}{{13}{13}{Results of training with different values of the inter sequence interval. a) The weights after training. b) probabilities after training}{figure.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Results of training with different training times. a) The weights after training. b) probabilities after training.}}{13}{figure.14}}
+\newlabel{fig:off_line_learning_ISI2}{{14}{13}{Results of training with different training times. a) The weights after training. b) probabilities after training}{figure.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Results of training with different values of the inter pulse interval. a) The weights after training. b) probabilities after training.}}{13}{figure.15}}
+\newlabel{fig:off_line_learning_IPI}{{15}{13}{Results of training with different values of the inter pulse interval. a) The weights after training. b) probabilities after training}{figure.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Results of training with different training times. a) The weights after training. b) probabilities after training.}}{14}{figure.16}}
+\newlabel{fig:off_line_learning_IPI2}{{16}{14}{Results of training with different training times. a) The weights after training. b) probabilities after training}{figure.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Results of training with different values of resting time. a) The weights after training. b) probabilities after training.}}{14}{figure.17}}
+\newlabel{fig:off_line_learning_resting}{{17}{14}{Results of training with different values of resting time. a) The weights after training. b) probabilities after training}{figure.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Results of training with different training times. a) The weights after training. b) probabilities after training.}}{14}{figure.18}}
+\newlabel{fig:off_line_learning_resting2}{{18}{14}{Results of training with different training times. a) The weights after training. b) probabilities after training}{figure.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Results of training with different values of resting time. a) The weights after training. b) probabilities after training.}}{15}{figure.19}}
+\newlabel{fig:off_line_learning_minicolumns_var}{{19}{15}{Results of training with different values of resting time. a) The weights after training. b) probabilities after training}{figure.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Results of training with different training times. a) The weights after training. b) probabilities after training.}}{15}{figure.20}}
+\newlabel{fig:off_line_learning_minicolumns_var2}{{20}{15}{Results of training with different training times. a) The weights after training. b) probabilities after training}{figure.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Results of training with different values of resting time. a) The weights after training. b) probabilities after training.}}{15}{figure.21}}
+\newlabel{fig:off_line_learning_minicolumns_fixed}{{21}{15}{Results of training with different values of resting time. a) The weights after training. b) probabilities after training}{figure.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces Results of training with different values of resting time. a) The weights after training. b) probabilities after training.}}{16}{figure.22}}
+\newlabel{fig:off_line_learning_minicolumns_fixed2}{{22}{16}{Results of training with different values of resting time. a) The weights after training. b) probabilities after training}{figure.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Results of training with different values of resting time. a) The weights after training. b) probabilities after training.}}{16}{figure.23}}
+\newlabel{fig:off_line_learning_hypercolumns}{{23}{16}{Results of training with different values of resting time. a) The weights after training. b) probabilities after training}{figure.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces Results of training with different values of resting time. a) The weights after training. b) probabilities after training.}}{16}{figure.24}}
+\newlabel{fig:off_line_learning_hypercolumns2}{{24}{16}{Results of training with different values of resting time. a) The weights after training. b) probabilities after training}{figure.24}{}}
+\citation{sandberg2002bayesian}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}On-line vs off-line filters}{17}{subsubsection.2.2.2}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}On-line rule}{17}{subsubsection.2.2.3}}
+\newlabel{eq:traces}{{12}{17}{On-line rule}{equation.2.12}{}}
+\newlabel{eq:traces_probability}{{13}{17}{On-line rule}{equation.2.13}{}}
+\newlabel{eq:bcpnn_weight_update}{{15}{17}{On-line rule}{equation.2.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces In red the intersection of two traces (co-activation) weighted against the base activation rate of each unit is responsible for the increase or decrease on the connectivity weight.}}{18}{figure.25}}
+\newlabel{fig:traces_example}{{25}{18}{In red the intersection of two traces (co-activation) weighted against the base activation rate of each unit is responsible for the increase or decrease on the connectivity weight}{figure.25}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {26}{\ignorespaces The training protocol. IPI stands for inter pulse interval and ISI for inter sequence interval. Explanations in the text.}}{19}{figure.26}}
+\newlabel{fig:training_protocol}{{26}{19}{The training protocol. IPI stands for inter pulse interval and ISI for inter sequence interval. Explanations in the text}{figure.26}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {27}{\ignorespaces An example of a successful training and recall. .}}{19}{figure.27}}
+\newlabel{fig:bcpnn_simple_training_and_recall}{{27}{19}{An example of a successful training and recall. }{figure.27}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {28}{\ignorespaces Dynamics of weight learning. a) effects of the training time on learning. b) effects of the number of epochs on training. c) effects of the number of patterns on learning. d) effects of the number of units on learning. See text for explanation.}}{21}{figure.28}}
+\newlabel{fig:simple_bcpnn_learning}{{28}{21}{Dynamics of weight learning. a) effects of the training time on learning. b) effects of the number of epochs on training. c) effects of the number of patterns on learning. d) effects of the number of units on learning. See text for explanation}{figure.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {29}{\ignorespaces Connectivity matrix dependency on the learning parameters. a) Dependence on $\tau _z$. We appreciate than the distance between $w_{self}$ and $w_{next}$ becomes smaller as $\tau _z$ increases. b) Dependence on $\tau _p$. In this case the relationship between $w_{self}$ and $w_{next}$ is not so pronounced, although there is a little bit of a change. }}{22}{figure.29}}
+\newlabel{fig:simple_bcpnn_learning_tau}{{29}{22}{Connectivity matrix dependency on the learning parameters. a) Dependence on $\tau _z$. We appreciate than the distance between $w_{self}$ and $w_{next}$ becomes smaller as $\tau _z$ increases. b) Dependence on $\tau _p$. In this case the relationship between $w_{self}$ and $w_{next}$ is not so pronounced, although there is a little bit of a change}{figure.29}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Robustness of the simple model to noise}{22}{subsection.2.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {30}{\ignorespaces A schematic of how noise works in the system.}}{22}{figure.30}}
+\newlabel{fig:noise_diagram}{{30}{22}{A schematic of how noise works in the system}{figure.30}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {31}{\ignorespaces The effects of noise for different connectivity matrices. }}{23}{figure.31}}
+\newlabel{fig:current_noise}{{31}{23}{The effects of noise for different connectivity matrices}{figure.31}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {32}{\ignorespaces The effects of noise for different connectivity matrices. }}{23}{figure.32}}
+\newlabel{fig:matrix_noise}{{32}{23}{The effects of noise for different connectivity matrices}{figure.32}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {33}{\ignorespaces The effects of noise for different connectivity matrices. }}{23}{figure.33}}
+\newlabel{fig:current_noise_scale}{{33}{23}{The effects of noise for different connectivity matrices}{figure.33}{}}
+\citation{guyon1988storage}
+\bibstyle{unsrt}
+\bibdata{references.bib}
+\bibcite{lashley1951problem}{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {34}{\ignorespaces Effect of weight noise on the scaling of the network}}{24}{figure.34}}
+\newlabel{fig:matrix_noise_scale}{{34}{24}{Effect of weight noise on the scaling of the network}{figure.34}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Robustness of the simple model to different training times}{24}{subsection.2.4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {35}{\ignorespaces Variance on the training protocol}}{24}{figure.35}}
+\newlabel{fig:training_time_robustness}{{35}{24}{Variance on the training protocol}{figure.35}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}The problem Of Complex Sequences}{24}{section.3}}
