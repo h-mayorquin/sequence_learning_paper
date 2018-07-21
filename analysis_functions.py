@@ -31,6 +31,7 @@ def deterministic_solution(time, beta, w, tau_s, tau_a, g_a, s0, a0, unit_active
 
     return s
 
+
 def calculate_pesistence_time(tau_a, w_diff, beta_diff, g_a, tau_s, perfect=True):
     """
     Formula for approximating the persistence time, the assumption for this is

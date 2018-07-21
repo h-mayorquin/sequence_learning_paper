@@ -1,8 +1,7 @@
 import numpy as np
 import IPython
 
-
-def create_orthogonal_canonical_representation(minicolumns, hypercolumns):
+def create_canonical_activity_representation(minicolumns, hypercolumns):
     aux = []
     for i in range(minicolumns):
         aux.append(i * np.ones(hypercolumns))
@@ -11,6 +10,7 @@ def create_orthogonal_canonical_representation(minicolumns, hypercolumns):
 
 
 def build_network_representation(matrix, minicolumns, hypercolumns):
+
     network_representation = np.zeros((len(matrix), minicolumns * hypercolumns), dtype='int')
 
     for pattern, indexes in enumerate(matrix):
