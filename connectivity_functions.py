@@ -102,7 +102,7 @@ def fill_connection(w, state_from, state_to, minicolumns, value):
             w[index_to, index_from] = value
 
 
-def fill_sequence(minicolumns, sequence, ws, wn, wb, alpha, extension, w=None):
+def create_weight_matrix(minicolumns, sequence, ws, wn, wb, alpha, extension, w=None):
     if isinstance(ws, numbers.Number):
         ws = np.full(minicolumns, ws)
     if isinstance(wn, numbers.Number):

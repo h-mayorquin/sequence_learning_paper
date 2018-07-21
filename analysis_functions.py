@@ -32,7 +32,7 @@ def deterministic_solution(time, beta, w, tau_s, tau_a, g_a, s0, a0, unit_active
     return s
 
 
-def calculate_pesistence_time(tau_a, w_diff, beta_diff, g_a, tau_s, perfect=True):
+def calculate_pesistence_time(tau_a, w_diff, beta_diff, g_a, tau_s, perfect=False):
     """
     Formula for approximating the persistence time, the assumption for this is
     that the persistent time is >> than tau_s
@@ -79,7 +79,8 @@ def calculate_recall_quantities(manager, nr, T_recall, T_cue, remove=0.009, rese
             success = 0.0
             break
 
-    return success, timings, pattern_sequence
+    persistent_times = [x[1] for x in timings]
+    return success, pattern_sequence, persistent_times, timings
 
 
 def calculate_angle_from_history(manager):
@@ -89,14 +90,14 @@ def calculate_angle_from_history(manager):
 
     :return: A vector with the distances to the stored patterns at every point in time.
     """
+    if manager.patterns_dic is None:
+        raise ValueError('You have to run a protocol before or provide a patterns dic')
+
+
     history = manager.history
     patterns_dic = manager.patterns_dic
-    if not manager.stored_patterns_indexes:  # This test for empty list
-        stored_pattern_indexes = np.array(list(patterns_dic.keys()))
-        num_patterns = max(stored_pattern_indexes) + 1
-    else:
-        stored_pattern_indexes = manager.stored_patterns_indexes
-        num_patterns = max(stored_pattern_indexes) + 1
+    stored_pattern_indexes = np.array(list(patterns_dic.keys()))
+    num_patterns = max(stored_pattern_indexes) + 1
 
     o = history['o'][1:]
     if o.shape[0] == 0:
