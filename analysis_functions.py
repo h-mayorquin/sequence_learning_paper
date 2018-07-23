@@ -93,7 +93,6 @@ def calculate_angle_from_history(manager):
     if manager.patterns_dic is None:
         raise ValueError('You have to run a protocol before or provide a patterns dic')
 
-
     history = manager.history
     patterns_dic = manager.patterns_dic
     stored_pattern_indexes = np.array(list(patterns_dic.keys()))
