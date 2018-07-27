@@ -3,8 +3,9 @@ import numpy as np
 import scipy as sp
 from connectivity_functions import softmax, get_w_pre_post, get_beta, strict_max
 from connectivity_functions import create_weight_matrix
-from activity_representation import create_canonical_activity_representation, build_network_representation
+from patterns_representation import create_canonical_activity_representation, build_network_representation
 import IPython
+import numbers
 
 
 epoch_end_string = 'epoch_end'
@@ -49,16 +50,22 @@ class Network:
         # State variables
         self.o = np.full(shape=self.n_units, fill_value=0.0)
         self.s = np.full(shape=self.n_units, fill_value=0.0)
-        self.beta = np.full(shape=self.n_units, fill_value=0.0)
         self.a = np.full(shape=self.n_units, fill_value=0.0)
         self.I = np.full(shape=self.n_units, fill_value=0.0)
-        self.w = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
 
         # Current values
         self.i = np.full(shape=self.n_units, fill_value=0.0)
         self.z_pre = np.full(shape=self.n_units, fill_value=0.0)
         self.z_post = np.full(shape=self.n_units, fill_value=0.0)
         self.z_co = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
+
+        # Keeping track of the probability / connectivity
+        self.p_pre = np.full(shape=self.n_units, fill_value=0.0)
+        self.p_post = np.full(shape=self.n_units, fill_value=0.0)
+        self.P = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
+        self.w = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
+        self.beta = np.full(shape=self.n_units, fill_value=0.0)
+
 
     def parameters(self):
         """
@@ -91,6 +98,10 @@ class Network:
             self.beta = np.full(shape=self.n_units, fill_value=0.0)
             self.w = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
 
+            self.p_pre = np.full(shape=self.n_units, fill_vale=0.0)
+            self.p_post = np.full(shape=self.n_units, fill_value=0.0)
+            self.P = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
+
     def update_continuous(self, dt=1.0, sigma=None):
         # Get the noise
         if sigma is None:
@@ -118,15 +129,25 @@ class Network:
         # Update the adaptation
         self.a += (dt / self.tau_a) * (self.o - self.a)
 
-        if False:
-            # Updated the z-traces
-            self.z_pre += (dt / self.tau_z_pre) * (self.o - self.z_pre)
-            self.z_post += (dt / self.tau_z_post) * (self.o - self.z_post)
-            self.z_co = np.outer(self.z_post, self.z_pre)
+    def update_z_values(self, dt):
+        # Updated the z-traces
+        self.z_pre += (dt / self.tau_z_pre) * (self.o - self.z_pre)
+        self.z_post += (dt / self.tau_z_post) * (self.o - self.z_post)
+        self.z_co = np.outer(self.z_post, self.z_pre)
 
-            # Update the connectivity
-            self.beta = get_beta(self.z_post, self.epsilon)
-            self.w = get_w_pre_post(self.z_co, self.z_pre, self.z_post, self.epsilon, diagonal_zero=False)
+        self.p_pre += dt * self.z_pre
+        self.p_post += dt * self.z_post
+        self.P += dt * self.z_co
+
+    def normalize_probabilities(self, T_total):
+        self.p_pre /= T_total
+        self.p_post /= T_total
+        self.P /= T_total
+
+    def update_weights(self):
+        # Update the connectivity
+        self.beta = get_beta(self.p_post, self.epsilon)
+        self.w = get_w_pre_post(self.P, self.p_pre, self.p_post, self.epsilon, diagonal_zero=False)
 
 
 class NetworkManager:
@@ -148,7 +169,10 @@ class NetworkManager:
 
         # Timing variables
         self.dt = dt
-        self.T_total = 0  # For plotting
+        self.T_training_total = 0.0
+        self.T_recall_total = 0.0
+        self.n_time_total = 0
+        self.time = None
 
         # Initialize saving dictionary
         self.saving_dictionary = self.get_saving_dictionary(values_to_save)
@@ -161,12 +185,11 @@ class NetworkManager:
         self.canonical_activity_representation = create_canonical_activity_representation(self.nn.minicolumns,
                                                                                           self.nn.hypercolumns)
         self.canonical_network_representation = build_network_representation(self.canonical_activity_representation,
-                                                                             self.nn.minicolumns, self.nn.hypercolumns)
-
+                                                                             self.nn.minicolumns)
         # Dictionary to see what has been taught to the network
         # self.n_patterns = 0
         self.patterns_dic = None
-        self.neural_representation = empty_array = np.array([]).reshape(0, self.nn.n_units)
+        self.network_representation = np.array([]).reshape(0, self.nn.n_units)
 
     def get_saving_dictionary(self, values_to_save):
         """
@@ -226,12 +249,12 @@ class NetworkManager:
             history['beta'].append(np.copy(self.nn.beta))
 
     def update_patterns(self, nr):
-        self.neural_representation = np.concatenate((self.neural_representation, nr))
-        aux, indexes = np.unique(self.neural_representation, axis=0, return_index=True)
+        self.network_representation = np.concatenate((self.network_representation, nr))
+        aux, indexes = np.unique(self.network_representation, axis=0, return_index=True)
         patterns_dic = {index: pattern for (index, pattern) in zip(indexes, aux)}
         self.patterns_dic = patterns_dic
 
-    def run_network(self, time=None, I=None):
+    def run_network(self, time=None, I=None, update_z=False, plastic_recall=False):
         # Change the time if given
 
         if time is None:
@@ -264,6 +287,11 @@ class NetworkManager:
             self.append_history(step_history, self.saving_dictionary)
             # Update the system with one step
             self.nn.update_continuous(dt=self.dt, sigma=noise[index_t, :])
+            if update_z:
+                self.nn.update_z_values(dt=self.dt)
+            if plastic_recall:
+                self.nn.normalize_probabilities(T_total=time[-1])
+                self.nn.update_weights()
 
         # Concatenate with the past history and redefine dictionary
         for quantity, boolean in self.saving_dictionary.items():
@@ -276,28 +304,20 @@ class NetworkManager:
 
         if empty_history:
             self.empty_history()
-            self.T_total = 0
+            self.T_recall_total = 0
         if reset:
             self.nn.reset_values(keep_connectivity=True)
+
+        # Updated the stored patterns
+        self.update_patterns(protocol.network_representation)
 
         # Unpack the protocol
         times = protocol.times_sequence
         patterns_sequence = protocol.patterns_sequence
         learning_constants = protocol.learning_constants_sequence  # The values of Kappa
 
-        # Update list of stored patterns
-        self.stored_patterns_indexes += []
-        self.stored_patterns_indexes += protocol.patterns_indexes
-
-        # This eliminates duplicates
-        self.stored_patterns_indexes = list(set(self.stored_patterns_indexes))
-        self.n_patterns = len(self.stored_patterns_indexes)
-
-        total_time = 0
-
-        epoch_history = {}
         # Initialize dictionary for storage
-
+        epoch_history = {}
         if values_to_save_epoch:
             saving_dictionary_epoch = self.get_saving_dictionary(values_to_save_epoch)
             # Create a list for the values that are in the saving dictionary
@@ -307,10 +327,10 @@ class NetworkManager:
 
         # Run the protocol
         epochs = 0
-        for time, pattern_index, k in zip(times, patterns_sequence, learning_constants):
+        for time, pattern, k in zip(times, patterns_sequence, learning_constants):
 
             # End of the epoch
-            if pattern_index == epoch_end_string:
+            if pattern == epoch_end_string:
                 # Store the values at the end of the epoch
                 if values_to_save_epoch:
                     self.append_history(epoch_history, saving_dictionary_epoch)
@@ -321,17 +341,45 @@ class NetworkManager:
 
             # Running step
             else:
-                self.nn.k = k
                 running_time = np.arange(0, time, self.dt)
-                self.run_network(time=running_time, I=pattern_index)
-                total_time += time
+                self.run_network(time=running_time, I=pattern, update_z=True, plastic_recall=False)
 
-        # Record the total time
-        self.T_total += total_time
+        # Get timings quantities
+        t_total, n_time_total, ime = protocol.calculate_time_quantities(self.dt)
+        self.T_training_total += t_total
+        self.n_time_total += n_time_total
+        self.time = np.linspace(0, self.T_training_total, num=self.n_time_total)
+
+        # Update weights
+        self.nn.normalize_probabilities(T_total=self.T_training_total)
+        self.nn.update_weights()
 
         # Return the history if available
         if values_to_save_epoch:
             return epoch_history
+
+    def run_network_protocol_offline(self, protocol):
+        # Build time input
+        timed_input = TimedInput(protocol, self.dt)
+        timed_input.build_timed_input()
+        timed_input.build_filtered_input_pre(tau_z=self.nn.tau_z_pre)
+        timed_input.build_filtered_input_post(tau_z=self.nn.tau_z_post)
+        # Calculate probabilities
+        p_pre, p_post, P = timed_input.calculate_probabilities_from_time_signal()
+        # Store the connectivity values
+        self.nn.beta = get_beta(p_post, self.nn.epsilon)
+        self.nn.w = get_w_pre_post(P, p_pre, p_post, self.nn.epsilon, diagonal_zero=False)
+
+        # Update the patterns
+        self.update_patterns(protocol.network_representation)
+
+        # Get timings quantities
+        t_total, n_time_total, time = protocol.calculate_time_quantities(self.dt)
+        self.T_training_total += t_total
+        self.n_time_total += n_time_total
+        self.time = np.linspace(0, self.T_training_total, num=self.n_time_total)
+
+        return timed_input
 
     def run_artificial_protocol(self, ws=1.0, wn=0.25, wb=-3.0, alpha=0.5):
         """
@@ -351,7 +399,8 @@ class NetworkManager:
 
         return w
 
-    def run_network_recall(self, T_recall=10.0, T_cue=0.0, I_cue=None, reset=True, empty_history=True):
+    def run_network_recall(self, T_recall=10.0, T_cue=0.0, I_cue=None, reset=True,
+                           empty_history=True, plastic_recall=False):
         """
         Run network free recall
         :param T_recall: The total time of recalling
@@ -363,6 +412,11 @@ class NetworkManager:
         time_recalling = np.arange(0, T_recall, self.dt)
         time_cue = np.arange(0, T_cue, self.dt)
 
+        if plastic_recall:
+            update_z = True
+        else:
+            update_z = False
+
         if empty_history:
             self.empty_history()
             self.T_total = 0
@@ -371,13 +425,13 @@ class NetworkManager:
 
         # Run the cue
         if T_cue > 0.001:
-            self.run_network(time=time_cue, I=I_cue)
+            self.run_network(time=time_cue, I=I_cue, update_z=update_z, plastic_recall=plastic_recall)
 
         # Run the recall
-        self.run_network(time=time_recalling)
+        self.run_network(time=time_recalling, update_z=update_z, plastic_recall=plastic_recall)
 
         # Calculate total time
-        self.T_total += T_recall + T_cue
+        self.T_recall_total += T_recall + T_cue
 
     def set_persistent_time_with_adaptation_gain(self, T_persistence, from_state=2, to_state=3):
         """
@@ -398,18 +452,59 @@ class NetworkManager:
 
         return g_a
 
+
 class Protocol:
 
     def __init__(self):
-
-        self.patterns_indexes = None
-        self.patterns_sequence = None
+        # Protocol input variables
         self.training_times = None
-        self.times_sequence = None
-        self.learning_constants_sequence = None
+        self.inter_pulse_intervals = None
+        self.inter_sequence_interval = None
+        self.resting_time = None
         self.epochs = None
 
-    def simple_protocol(self, patterns_indexes, training_time=1.0, inter_pulse_interval=0.0,
+        # Protocol output variables
+        self.times_sequence = None
+        self.patterns_sequence = None
+        self.learning_constants_sequence = None
+
+        # Patterns to store variables
+        self.n_patterns = None
+        self.activity_representation = None
+        self.network_representation = None
+
+        # Time course related variables
+        self.n_time_total = None
+        self.dt = None
+        self.T_protocol_total = None
+        self.time = None
+
+    def calculate_time_quantities(self, dt):
+        self.dt = dt
+        inter_sequence_interval_length = int(self.inter_sequence_interval / dt)
+        resting_time_length = int(self.resting_time / dt)
+
+        # Add the patterns and the pulse
+        self.n_time_total = 0
+
+        for epoch in range(self.epochs):
+            for training_time, inter_pulse_interval in zip(self.training_times, self.inter_pulse_intervals):
+                pattern_length = int(training_time / dt)
+                inter_pulse_interval_length = int(inter_pulse_interval / dt)
+                self.n_time_total += pattern_length + inter_pulse_interval_length
+
+            # Add inter sequence interval or all but the last epoch
+            if epoch < self.epochs - 1:
+                self.n_time_total += inter_sequence_interval_length
+
+        self.n_time_total += resting_time_length
+
+        self.T_protocol_total = self.n_time_total * self.dt
+        self.time = np.linspace(0, self.T_protocol_total, num=self.n_time_total)
+
+        return self.T_protocol_total, self.n_time_total, self.time
+
+    def simple_protocol(self, representation, training_times=1.0, inter_pulse_intervals=0.0,
                         inter_sequence_interval=1.0, epochs=1, resting_time=0.0):
         """
         The simples protocol to train a sequence
@@ -421,16 +516,26 @@ class Protocol:
         :param epochs: how many times to present the sequence
         """
 
-        epsilon = 1e-10
         self.epochs = epochs
-        self.patterns_indexes = patterns_indexes
+        self.activity_representation = representation.activity_representation
+        self.network_representation = representation.build_network_representation()
+        self.n_patterns = representation.n_patterns
+        self.inter_sequence_interval = inter_sequence_interval
+        self.resting_time = resting_time
 
-        if isinstance(training_time, (float, int)):
-            self.training_times = [training_time for i in range(len(patterns_indexes))]
-        elif isinstance(training_time, (list, np.ndarray)):
-            self.training_times = training_time
+        if isinstance(training_times, numbers.Number):
+            self.training_times = [training_times for _ in range(self.n_patterns)]
+        elif isinstance(training_times, (list, np.ndarray)):
+            self.training_times = training_times
         else:
             raise TypeError('Type of training time not understood')
+
+        if isinstance(inter_pulse_intervals, numbers.Number):
+            self.inter_pulse_intervals = [inter_pulse_intervals for i in range(self.n_patterns)]
+        elif isinstance(inter_pulse_intervals, (list, np.ndarray)):
+            self.inter_pulse_intervals = inter_pulse_intervals
+        else:
+            raise TypeError('Type of inter-puse-interval not understood')
 
         patterns_sequence = []
         times_sequence = []
@@ -438,30 +543,32 @@ class Protocol:
 
         for i in range(epochs):
             # Let's fill the times
-            for pattern, training_time in zip(patterns_indexes, self.training_times):
+            for pattern, training_time, inter_pulse_interval in zip(self.network_representation,
+                                                                    self.training_times,
+                                                                    self.inter_pulse_intervals):
                 # This is when the pattern is training
                 patterns_sequence.append(pattern)
                 times_sequence.append(training_time)
                 learning_constants_sequence.append(1.0)
 
                 # This happens when there is time between the patterns
-                if inter_pulse_interval > epsilon:
+                if inter_pulse_interval > 0.0:
                     patterns_sequence.append(None)
                     times_sequence.append(inter_pulse_interval)
                     learning_constants_sequence.append(0.0)
 
             # Remove the inter pulse interval at the end of the patterns
-            if inter_pulse_interval > epsilon:
+            if inter_pulse_interval > 0.0:
                 patterns_sequence.pop()
                 times_sequence.pop()
                 learning_constants_sequence.pop()
 
-            if inter_sequence_interval > epsilon and i < epochs - 1:
+            if inter_sequence_interval > 0.0 and i < epochs - 1:
                 patterns_sequence.append(None)
                 times_sequence.append(inter_sequence_interval)
                 learning_constants_sequence.append(0.0)
 
-            if resting_time > epsilon and i == epochs - 1:
+            if resting_time > 0.0 and i == epochs - 1:
                 patterns_sequence.append(None)
                 times_sequence.append(resting_time)
                 learning_constants_sequence.append(0.0)
@@ -471,7 +578,6 @@ class Protocol:
                 patterns_sequence.append(epoch_end_string)
                 times_sequence.append(epoch_end_string)
                 learning_constants_sequence.append(epoch_end_string)
-
         # Store
         self.patterns_sequence = patterns_sequence
         self.times_sequence = times_sequence
@@ -514,65 +620,27 @@ class Protocol:
 
 
 class TimedInput:
-    def __init__(self, network_representation, dt, training_time, inter_pulse_interval=0.0,
-                     inter_sequence_interval=0.0, resting_time=0, epochs=1):
+    def __init__(self, protocol, dt):
 
-        self.n_patterns = network_representation.shape[0]
-        # Check for training times and inter pulses interval
-        if isinstance(training_time, (float, int)):
-            self.training_times = [training_time for i in range(self.n_patterns)]
-        elif isinstance(training_time, (list, np.ndarray)):
-            self.training_times = training_time
-        else:
-            raise TypeError('Type of training time not understood')
-
-        if isinstance(inter_pulse_interval, (float, int)):
-            self.inter_pulse_intervals = [inter_pulse_interval for i in range(self.n_patterns)]
-        elif isinstance(inter_pulse_interval, (list, np.ndarray)):
-            self.inter_pulse_intervals = inter_pulse_interval
-        else:
-            raise TypeError('Type of training time not understood')
-
-        self.n_units = network_representation.shape[1]
+        self.protocol = protocol
+        self.n_patterns = protocol.n_patterns
+        self.n_units = protocol.network_representation.shape[1]
         self.dt = dt
 
-        self.network_representation = network_representation
-        self.epochs = epochs
-        self.inter_sequence_interval = inter_sequence_interval
-        self.resting_time = resting_time
+        self.T_protocol_total, self.n_time_total, self.time = protocol.calculate_time_quantities(self.dt)
 
-        self.inter_sequence_interval_length = int(inter_sequence_interval / dt)
-        self.resting_time_length = int(resting_time / dt)
-
-        # Add the patterns and the pulse
-        self.n_time_total = 0
-
-        for epoch in range(epochs):
-            for training_time, inter_pulse_interval in zip(self.training_times, self.inter_pulse_intervals):
-                pattern_length = int(training_time / dt)
-                inter_pulse_interval_length = int(inter_pulse_interval / dt)
-                self.n_time_total += pattern_length + inter_pulse_interval_length
-
-            # Add inter sequence interval or all but the last epoch
-            if epoch < epochs - 1:
-                self.n_time_total += self.inter_sequence_interval_length
-
-        self.n_time_total += self.resting_time_length
-
-        self.T_total = self.n_time_total * self.dt
-        self.time = np.linspace(0, self.T_total, num=self.n_time_total)
-
-        self.S = np.zeros((self.n_units, self.n_time_total))
-        self.z_pre = np.zeros_like(self.S)
-        self.z_post = np.zeros_like(self.S)
+        self.network_representation = protocol.network_representation
+        self.O = np.zeros((self.n_units, self.n_time_total))
+        self.z_pre = np.zeros_like(self.O)
+        self.z_post = np.zeros_like(self.O)
         self.tau_z_pre = None
         self.tau_z_post = None
 
     def build_timed_input(self):
         end = 0
-        for epoch in range(self.epochs):
+        for epoch in range(self.protocol.epochs):
             for pattern, (training_time, inter_pulse_interval) in \
-                    enumerate(zip(self.training_times, self.inter_pulse_intervals)):
+                    enumerate(zip(self.protocol.training_times, self.protocol.inter_pulse_intervals)):
 
                 pattern_length = int(training_time / self.dt)
                 inter_pulse_interval_length = int(inter_pulse_interval / self.dt)
@@ -580,51 +648,52 @@ class TimedInput:
                 end = start + pattern_length
                 # Add the input
                 indexes = np.where(self.network_representation[pattern])[0]
-                self.S[indexes, start:end] = 1
+                self.O[indexes, start:end] = 1
                 end += inter_pulse_interval_length
 
-            end += self.inter_sequence_interval_length
+            inter_sequence_interval_length = int(self.protocol.inter_sequence_interval / self.dt)
+            end += inter_sequence_interval_length
 
-        return self.S
+        return self.O
 
     def build_filtered_input_pre(self, tau_z):
         self.tau_z_pre = tau_z
-        for index, s in enumerate(self.S.T):
+        for index, o in enumerate(self.O.T):
             if index == 0:
-                self.z_pre[:, index] = (self.dt / tau_z) * (s - 0)
+                self.z_pre[:, index] = (self.dt / tau_z) * (o - 0)
             else:
-                self.z_pre[:, index] = self.z_pre[:, index - 1] + (self.dt / tau_z) * (s - self.z_pre[:, index - 1])
+                self.z_pre[:, index] = self.z_pre[:, index - 1] + (self.dt / tau_z) * (o - self.z_pre[:, index - 1])
 
         return self.z_pre
 
     def build_filtered_input_post(self, tau_z):
         self.tau_z_post = tau_z
-        for index, s in enumerate(self.S.T):
+        for index, o in enumerate(self.O.T):
             if index == 0:
-                self.z_post[:, index] = (self.dt / tau_z) * (s - 0)
+                self.z_post[:, index] = (self.dt / tau_z) * (o - 0)
             else:
-                self.z_post[:, index] = self.z_post[:, index - 1] + (self.dt / tau_z) * (s - self.z_post[:, index - 1])
+                self.z_post[:, index] = self.z_post[:, index - 1] + (self.dt / tau_z) * (o - self.z_post[:, index - 1])
 
         return self.z_post
 
-    def calculate_probabilities_from_time_signal(self, filtered=False):
+    def calculate_probabilities_from_time_signal(self, filtered=True):
         if filtered:
             y_pre = self.z_pre
             y_post = self.z_post
         else:
-            y_pre = self.S
-            y_post = self.S
+            y_pre = self.O
+            y_post = self.O
 
         n_units = self.n_units
         n_time_total = self.n_time_total
 
-        p_pre = sp.integrate.simps(y=y_pre, x=self.time, axis=1) / self.T_total
-        p_post = sp.integrate.simps(y=y_post, x=self.time, axis=1) / self.T_total
+        p_pre = sp.integrate.simps(y=y_pre, x=self.time, axis=1) / self.T_protocol_total
+        p_post = sp.integrate.simps(y=y_post, x=self.time, axis=1) / self.T_protocol_total
 
         outer_product = np.zeros((n_units, n_units, n_time_total))
         for index, (s_pre, s_post) in enumerate(zip(y_pre.T, y_post.T)):
             outer_product[:, :, index] = s_post[:, np.newaxis] @ s_pre[np.newaxis, :]
 
-        P = sp.integrate.simps(y=outer_product, x=self.time, axis=2) / self.T_total
+        P = sp.integrate.simps(y=outer_product, x=self.time, axis=2) / self.T_protocol_total
 
         return p_pre, p_post, P

@@ -6,10 +6,19 @@ import matplotlib.gridspec as gridspec
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from activity_representation import transform_neural_to_normal
 from analysis_functions import calculate_angle_from_history, calculate_winning_pattern_from_distances
 from analysis_functions import calculate_patterns_timings
 
+class MidpointNormalize(matplotlib.colors.Normalize):
+    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
+        self.midpoint = midpoint
+        matplotlib.colors.Normalize.__init__(self, vmin, vmax, clip)
+
+    def __call__(self, value, clip=None):
+        # I'm ignoring masked values and all kinds of edge cases to make a
+        # simple example...
+        x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
+        return np.ma.masked_array(np.interp(value, x, y))
 
 def set_text(ax, coordinate_from, coordinate_to, fontsize=25, color='black'):
     """
@@ -51,8 +60,8 @@ def plot_weight_matrix(manager, one_hypercolum=True, ax=None):
         if one_hypercolum:
             w = w[:manager.nn.minicolumns, :manager.nn.minicolumns]
 
-        aux_max = np.max(np.abs(w))
-
+        # aux_max = np.max(np.abs(w))
+        norm = MidpointNormalize(midpoint=0)
         cmap = matplotlib.cm.RdBu_r
 
         if ax is None:
@@ -60,7 +69,7 @@ def plot_weight_matrix(manager, one_hypercolum=True, ax=None):
             fig = plt.figure(figsize=(16, 12))
             ax = fig.add_subplot(111)
 
-        im = ax.imshow(w, cmap=cmap, interpolation='None', vmin=-aux_max, vmax=aux_max)
+        im = ax.imshow(w, cmap=cmap, interpolation='None', norm=norm)
         ax.set_title(title + ' connectivity')
 
         divider = make_axes_locatable(ax)
@@ -77,7 +86,7 @@ def plot_winning_pattern(manager, ax=None, separators=False, remove=0):
     """
 
     n_patterns = manager.nn.minicolumns
-    T_total = manager.T_total
+    T_total = manager.T_training_total
     # Get the angles
     angles = calculate_angle_from_history(manager)
     winning = calculate_winning_pattern_from_distances(angles) + 1  # Get them in the color bounds
@@ -148,7 +157,7 @@ def plot_winning_pattern(manager, ax=None, separators=False, remove=0):
 
 def plot_sequence(manager):
 
-    T_total = manager.T_total
+    T_total = manager.T_training_total
     # Get the angles
     angles = calculate_angle_from_history(manager)
     winning = calculate_winning_pattern_from_distances(angles)
