@@ -9,6 +9,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from analysis_functions import calculate_angle_from_history, calculate_winning_pattern_from_distances
 from analysis_functions import calculate_patterns_timings
 
+
 class MidpointNormalize(matplotlib.colors.Normalize):
     def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
         self.midpoint = midpoint

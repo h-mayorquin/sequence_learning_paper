@@ -60,6 +60,7 @@ class Network:
         self.z_co = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
 
         # Keeping track of the probability / connectivity
+        self.t_p = 0.0
         self.p_pre = np.full(shape=self.n_units, fill_value=0.0)
         self.p_post = np.full(shape=self.n_units, fill_value=0.0)
         self.P = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
@@ -102,6 +103,7 @@ class Network:
             self.p_post = np.full(shape=self.n_units, fill_value=0.0)
             self.P = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
 
+
     def update_continuous(self, dt=1.0, sigma=None):
         # Get the noise
         if sigma is None:
@@ -135,12 +137,13 @@ class Network:
         self.z_post += (dt / self.tau_z_post) * (self.o - self.z_post)
         self.z_co = np.outer(self.z_post, self.z_pre)
 
-    def update_probabilities(self, dt, t):
-        if t > 0.0:
-            time_factor = dt / t
+    def update_probabilities(self, dt):
+        if self.t_p > 0.0:
+            time_factor = dt / self.t_p
             self.p_pre += time_factor * (self.z_pre - self.p_pre)
             self.p_post += time_factor * (self.z_post - self.p_post)
             self.P += time_factor * (self.z_co - self.P)
+        self.t_p += dt
 
     def update_weights(self):
         # Update the connectivity
@@ -188,6 +191,12 @@ class NetworkManager:
         # self.n_patterns = 0
         self.patterns_dic = None
         self.network_representation = np.array([]).reshape(0, self.nn.n_units)
+
+        # Training matrices
+        self.B = None
+        self.T = None
+        self.w_diff = np.zeros_like(self.nn.w)
+        self.beta_diff = np.zeros_like(self.nn.w)
 
     def get_saving_dictionary(self, values_to_save):
         """
@@ -286,7 +295,7 @@ class NetworkManager:
             # Update the learning variables
             if train_network:
                 self.nn.update_z_values(dt=self.dt)
-                self.nn.update_probabilities(dt=self.dt, t=t)
+                self.nn.update_probabilities(dt=self.dt)
             # Update the weights
             if plasticity_on:
                 self.nn.update_weights()
@@ -352,7 +361,8 @@ class NetworkManager:
         self.time = np.linspace(0, self.T_training_total, num=self.n_time_total)
 
         # Update weights
-        self.nn.update_weights()
+        if not plasticity_on:
+            self.nn.update_weights()
 
         # Return the history if available
         if values_to_save_epoch:
@@ -422,6 +432,9 @@ class NetworkManager:
             self.T_total = 0
         if reset:
             self.nn.reset_values(keep_connectivity=True)
+            # Recall times
+            self.T_recall_total = 0
+            self.n_time_total = 0
 
         # Run the cue
         if T_cue > 0.001:
@@ -432,6 +445,9 @@ class NetworkManager:
 
         # Calculate total time
         self.T_recall_total += T_recall + T_cue
+        self.n_time_total += self.history['o'].shape[0]
+        self.time = np.linspace(0, self.T_recall_total, num=self.n_time_total)
+
 
     def set_persistent_time_with_adaptation_gain(self, T_persistence, from_state=2, to_state=3):
         """
@@ -454,7 +470,16 @@ class NetworkManager:
 
     def calculate_persistence_time_matrix(self):
 
+        self.w_diff = self.nn.w.diagonal() - self.nn.w
+        self.beta_diff = (self.nn.beta[:, np.newaxis] - self.nn.beta[np.newaxis, :]).T
 
+        self.B = (self.w_diff + self.beta_diff) / self.nn.g_a
+        self.T = self.nn.tau_a * np.log(1 / (1 - self.B))
+        if not self.nn.perfect:
+            self.T += self.nn.tau_a * np.log(1 / (1 - self.nn.r))
+
+        self.T[self.T < 0] = 0.0
+        return self.T
 
 
 class Protocol:
