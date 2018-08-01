@@ -135,14 +135,12 @@ class Network:
         self.z_post += (dt / self.tau_z_post) * (self.o - self.z_post)
         self.z_co = np.outer(self.z_post, self.z_pre)
 
-        self.p_pre += dt * self.z_pre
-        self.p_post += dt * self.z_post
-        self.P += dt * self.z_co
-
-    def normalize_probabilities(self, T_total):
-        self.p_pre /= T_total
-        self.p_post /= T_total
-        self.P /= T_total
+    def update_probabilities(self, dt, t):
+        if t > 0.0:
+            time_factor = dt / t
+            self.p_pre += time_factor * (self.z_pre - self.p_pre)
+            self.p_post += time_factor * (self.z_post - self.p_post)
+            self.P += time_factor * (self.z_co - self.P)
 
     def update_weights(self):
         # Update the connectivity
@@ -254,13 +252,11 @@ class NetworkManager:
         patterns_dic = {index: pattern for (index, pattern) in zip(indexes, aux)}
         self.patterns_dic = patterns_dic
 
-    def run_network(self, time=None, I=None, update_z=False, plastic_recall=False):
+    def run_network(self, time=None, I=None, train_network=False, plasticity_on=False):
         # Change the time if given
 
         if time is None:
             raise ValueError('time has to be given')
-
-        self.dt = time[1] - time[0]
 
         # Load the clamping if available
         if I is None:
@@ -285,12 +281,14 @@ class NetworkManager:
         for index_t, t in enumerate(time):
             # Append the history first
             self.append_history(step_history, self.saving_dictionary)
-            # Update the system with one step
+            # Update the system dynamic variables
             self.nn.update_continuous(dt=self.dt, sigma=noise[index_t, :])
-            if update_z:
+            # Update the learning variables
+            if train_network:
                 self.nn.update_z_values(dt=self.dt)
-            if plastic_recall:
-                self.nn.normalize_probabilities(T_total=time[-1])
+                self.nn.update_probabilities(dt=self.dt, t=t)
+            # Update the weights
+            if plasticity_on:
                 self.nn.update_weights()
 
         # Concatenate with the past history and redefine dictionary
@@ -300,11 +298,12 @@ class NetworkManager:
 
         return self.history
 
-    def run_network_protocol(self, protocol, verbose=True, values_to_save_epoch=None, reset=True, empty_history=True):
+    def run_network_protocol(self, protocol, plasticity_on=False, verbose=True,
+                             values_to_save_epoch=None, reset=True, empty_history=True):
 
         if empty_history:
             self.empty_history()
-            self.T_recall_total = 0
+            self.T_training_total = 0
         if reset:
             self.nn.reset_values(keep_connectivity=True)
 
@@ -327,8 +326,9 @@ class NetworkManager:
 
         # Run the protocol
         epochs = 0
+        start_time = 0.0
+        n_aux = 0
         for time, pattern, k in zip(times, patterns_sequence, learning_constants):
-
             # End of the epoch
             if pattern == epoch_end_string:
                 # Store the values at the end of the epoch
@@ -341,17 +341,17 @@ class NetworkManager:
 
             # Running step
             else:
-                running_time = np.arange(0, time, self.dt)
-                self.run_network(time=running_time, I=pattern, update_z=True, plastic_recall=False)
+                running_time = np.arange(start_time, start_time + time, self.dt)
+                self.run_network(time=running_time, I=pattern, train_network=True, plasticity_on=plasticity_on)
+                start_time += time
+                n_aux += running_time.size
 
         # Get timings quantities
-        t_total, n_time_total, ime = protocol.calculate_time_quantities(self.dt)
-        self.T_training_total += t_total
-        self.n_time_total += n_time_total
+        self.T_training_total += start_time
+        self.n_time_total += n_aux
         self.time = np.linspace(0, self.T_training_total, num=self.n_time_total)
 
         # Update weights
-        self.nn.normalize_probabilities(T_total=self.T_training_total)
         self.nn.update_weights()
 
         # Return the history if available
@@ -400,7 +400,7 @@ class NetworkManager:
         return w
 
     def run_network_recall(self, T_recall=10.0, T_cue=0.0, I_cue=None, reset=True,
-                           empty_history=True, plastic_recall=False):
+                           empty_history=True, plasticity_on=False):
         """
         Run network free recall
         :param T_recall: The total time of recalling
@@ -412,10 +412,10 @@ class NetworkManager:
         time_recalling = np.arange(0, T_recall, self.dt)
         time_cue = np.arange(0, T_cue, self.dt)
 
-        if plastic_recall:
-            update_z = True
+        if plasticity_on:
+            train_network = True
         else:
-            update_z = False
+            train_network = False
 
         if empty_history:
             self.empty_history()
@@ -425,10 +425,10 @@ class NetworkManager:
 
         # Run the cue
         if T_cue > 0.001:
-            self.run_network(time=time_cue, I=I_cue, update_z=update_z, plastic_recall=plastic_recall)
+            self.run_network(time=time_cue, I=I_cue, train_network=train_network, plasticity_on=plasticity_on)
 
         # Run the recall
-        self.run_network(time=time_recalling, update_z=update_z, plastic_recall=plastic_recall)
+        self.run_network(time=time_recalling, train_network=train_network, plasticity_on=plasticity_on)
 
         # Calculate total time
         self.T_recall_total += T_recall + T_cue
@@ -452,6 +452,10 @@ class NetworkManager:
 
         return g_a
 
+    def calculate_persistence_time_matrix(self):
+
+
+
 
 class Protocol:
 
@@ -461,7 +465,7 @@ class Protocol:
         self.inter_pulse_intervals = None
         self.inter_sequence_interval = None
         self.resting_time = None
-        self.epochs = None
+        self.w = None
 
         # Protocol output variables
         self.times_sequence = None

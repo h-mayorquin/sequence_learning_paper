@@ -51,7 +51,7 @@ def plot_artificial_sequences(sequences, minicolumns):
     sns.set()
 
 
-def plot_weight_matrix(manager, one_hypercolum=True, ax=None):
+def plot_weight_matrix(manager, one_hypercolum=True, ax=None, vmin=None):
 
     with sns.axes_style("whitegrid", {'axes.grid': False}):
         w = manager.nn.w
@@ -69,7 +69,7 @@ def plot_weight_matrix(manager, one_hypercolum=True, ax=None):
             fig = plt.figure(figsize=(16, 12))
             ax = fig.add_subplot(111)
 
-        im = ax.imshow(w, cmap=cmap, interpolation='None', norm=norm)
+        im = ax.imshow(w, cmap=cmap, interpolation='None', norm=norm, vmin=vmin)
         ax.set_title(title + ' connectivity')
 
         divider = make_axes_locatable(ax)
@@ -186,8 +186,12 @@ def plot_sequence(manager):
     cb = fig.colorbar(im1, cax=cbar_ax, boundaries=bounds)
 
 
-def plot_network_activity_angle(manager):
-    T_total = manager.T_total
+def plot_network_activity_angle(manager, recall=True):
+    if recall:
+        T_total = manager.T_recall_total
+    else:
+        T_total = manager.T_training_total
+
     history = manager.history
     # Get the angles
     angles = calculate_angle_from_history(manager)
