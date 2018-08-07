@@ -3,7 +3,7 @@ import IPython
 import numbers
 
 
-def log_epsilon(x, epsilon=1e-10):
+def log_epsilon(x, epsilon):
 
     return np.log10(np.maximum(x, epsilon))
 
@@ -11,14 +11,15 @@ def log_epsilon(x, epsilon=1e-10):
 def get_w_pre_post(P, p_pre, p_post, epsilon=1e-20, diagonal_zero=True):
 
     outer = np.outer(p_post, p_pre)
-
     # w = np.log(p * P) - np.log(outer)
     x = P / outer
     # w = np.log(x)
-    w = log_epsilon(x, epsilon)
+    w = log_epsilon(P, epsilon) - log_epsilon(outer, epsilon)
 
     if diagonal_zero:
         w[np.diag_indices_from(w)] = 0
+
+    return w
 
 
 def get_beta(p, epsilon=1e-10):
@@ -116,6 +117,7 @@ def create_weight_matrix(minicolumns, sequence, ws, wn, wb, alpha, extension, w=
         w = np.ones((minicolumns * hypercolumns, minicolumns * hypercolumns)) * w_min
 
     n_states = len(sequence)
+
     # Let's fill the self-connections
     for state_index, value in enumerate(ws):
         state_from = sequence[state_index]

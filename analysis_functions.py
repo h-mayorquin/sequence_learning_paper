@@ -32,7 +32,7 @@ def deterministic_solution(time, beta, w, tau_s, tau_a, g_a, s0, a0, unit_active
     return s
 
 
-def calculate_pesistence_time(tau_a, w_diff, beta_diff, g_a, tau_s, perfect=False):
+def calculate_persistence_time(tau_a, w_diff, beta_diff, g_a, tau_s, perfect=False):
     """
     Formula for approximating the persistence time, the assumption for this is
     that the persistent time is >> than tau_s
@@ -152,3 +152,135 @@ def calculate_patterns_timings(winning_patterns, dt, remove=0):
         previous = index
 
     return patterns_timings
+
+
+def calculate_probability_theo(Tp, Tstart, Ttotal, tau_z):
+    """
+    Calculate the probability of the unit being activated.
+    :param tau_z: the time constant of the uncertainty or z-filters
+    :param Tp: The training time, the time that the unit was activated
+    :param Tstart: The time at which the unit was activated
+    :param Ttotal: The total time of observation
+    :return: the probability of the unit being active
+    """
+    p = Tp - tau_z * np.exp((Tstart - Ttotal) / tau_z) * (np.exp(Tp / tau_z) - 1)
+
+    return p / Ttotal
+
+
+def calculate_joint_probabilities_theo(T1, Ts, T2, Tt, tau1, tau2):
+    """
+    Calcualtes the joint probability of unit 1 and 2.
+    :param T1:The time that the unit 1 remained activated (training time)
+    :param Ts: The time at which the second unit becomes activated
+    :param T2: The time the unit 2 remained activated (training time)
+    :param Tt: The total time of observation
+    :param tau1: the time constant of the z-filter of pre-synaptic unit (z-filter)
+    :param tau2: the time constant of the z-filter of post-synaptic unit (z-filter)
+    :return: the joint probability.
+    """
+    tau_p = tau1 * tau2 / (tau1 + tau2)
+    M1 = 1 - np.exp(-T1 / tau1)
+    M2 = 1 - np.exp(-T2 / tau2)
+
+    aux1 = M1 * tau1 * (np.exp(-(Ts - T1) / tau1) - np.exp(-(Ts + T2 - T1) / tau1))
+
+    A1arg = T1 / tau1 + Ts / tau2 - (Ts + T2) / tau_p
+    A1 = np.exp(A1arg)
+    A2arg = T1 / tau1 + Ts / tau2 - Ts / tau_p
+    A2 = np.exp(A2arg)
+    aux2 = M1 * tau_p * (A1 - A2)
+
+    B1arg = T1 / tau1 + Ts + T2 / tau2 - Tt / tau_p
+    B1 = np.exp(B1arg)
+    B2arg = T1 / tau1 + Ts + T2 / tau2 - (Ts + T2) / tau_p
+    B2 = np.exp(B2arg)
+
+    aux3 = M1 * M2 * tau_p * (B1 - B2)
+
+    P_aux = aux1 + aux2 - aux3
+
+    return P_aux / Tt
+
+
+def write_this_one(T1, Ts, T2, Tt, tau1, tau2):
+    """
+    Calcualtes the joint probability of unit 1 and 2.
+    :param T1:The time that the unit 1 remained activated (training time)
+    :param Ts: The time at which the second unit becomes activated
+    :param T2: The time the unit 2 remained activated (training time)
+    :param Tt: The total time of observation
+    :param tau1: the time constant of the z-filter of pre-synaptic unit (z-filter)
+    :param tau2: the time constant of the z-filter of post-synaptic unit (z-filter)
+    :return: the joint probability.
+    """
+    tau_p = tau1 * tau2 / (tau1 + tau2)
+    M1 = 1 - np.exp(-T1 / tau1)
+    M2 = 1 - np.exp(-T2 / tau2)
+    A1 = np.exp(T1 / tau1) * np.exp(Ts / tau2)
+
+    aux1 = M1 * tau1 * (np.exp(-(Ts - T1) / tau1) - np.exp(-(Ts + T2 - T1) / tau1))
+    aux2 = M1 * tau_p * A1 \
+           * (np.exp(-(Ts + T2) / tau_p) - np.exp(-Ts / tau_p))
+    aux3 = M1 * M2 * tau_p * np.exp(T1 / tau1) * np.exp((Ts + T2) / tau2) \
+           * (np.exp(-(Tt / tau_p)) - np.exp(-(Ts + T2) / tau_p))
+
+    P_aux = aux1 + aux2 - aux3
+
+    return P_aux / Tt
+
+
+def calculate_self_probability_theo(T1, Tt, tau1, tau2):
+    """
+    The joint probability of unit with itself with different uncertainty for pre-unit and
+    post-unit
+    :param T1: the time the unit remained activated (training time)
+    :param Tt: total time of observation
+    :param tau1: the pre-syanptic time constant.
+    :param tau2: the post-synaptic time constant.
+    :return:
+    """
+    tau_p = tau1 * tau2 / (tau1 + tau2)
+
+    m1 = 1 - np.exp(-T1 / tau1)
+    m2 = 1 - np.exp(-T1 / tau2)
+    mp = 1 - np.exp(-T1 / tau_p)
+
+    aux1 = T1 - tau1 * m1 - tau2 * m2 + tau_p * mp
+    aux2 = tau_p * m1 * m2 * (1 - np.exp(-(Tt - T1) / tau_p))
+
+    P_self = aux1 + aux2
+
+    return P_self / Tt
+
+
+def calculate_get_weights_theo(T1, T2, Tt, tau_pre, tau_post, Tr=None, IPI=None):
+    Tstart = 0.0
+    if Tr is None:
+        Tr = T2
+    if IPI is None:
+        IPI = 0.0
+
+    # Calculate the self weight
+    pi = calculate_probability_theo(T1, Tstart, Tt, tau_pre)
+    pii = calculate_self_probability_theo(T1, Tt, tau_pre, tau_post)
+    w_self = np.log10(pii / (pi * pi))
+
+    # Calculate the next weight
+    Ts = T1 + IPI
+    pij = calculate_joint_probabilities_theo(T1, Ts, T2, Tt, tau_pre, tau_post)
+    pj = calculate_probability_theo(T2, Tstart, Tt, tau_post)
+    w_next = np.log10(pij / (pi * pj))
+
+    # Calculate the rest weight
+    pk = calculate_probability_theo(Tr, Tstart, Tt, tau_post)
+    Ts = T1 + IPI + T2 + IPI
+    pik = calculate_joint_probabilities_theo(T1, Ts, Tr, Tt, tau_pre, tau_post)
+    w_rest = np.log10(pik / (pi * pk))
+
+    # Calculate the back weight
+    Ts = T1 + IPI
+    pji = calculate_joint_probabilities_theo(T1, Ts, T2, Tt, tau_post, tau_pre)
+    w_back = np.log10(pji / (pi * pj))
+
+    return w_self, w_next, w_rest, w_back

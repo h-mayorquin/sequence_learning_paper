@@ -264,8 +264,8 @@ class NetworkManager:
     def run_network(self, time=None, I=None, train_network=False, plasticity_on=False):
         # Change the time if given
 
-        if time is None:
-            raise ValueError('time has to be given')
+        if time is None or len(time) == 0:
+            raise ValueError('Time should be given and be an array')
 
         # Load the clamping if available
         if I is None:
@@ -375,10 +375,10 @@ class NetworkManager:
         timed_input.build_filtered_input_pre(tau_z=self.nn.tau_z_pre)
         timed_input.build_filtered_input_post(tau_z=self.nn.tau_z_post)
         # Calculate probabilities
-        p_pre, p_post, P = timed_input.calculate_probabilities_from_time_signal()
+        self.nn.p_pre, self.nn.p_post, self.nn.P = timed_input.calculate_probabilities_from_time_signal()
         # Store the connectivity values
-        self.nn.beta = get_beta(p_post, self.nn.epsilon)
-        self.nn.w = get_w_pre_post(P, p_pre, p_post, self.nn.epsilon, diagonal_zero=False)
+        self.nn.beta = get_beta(self.nn.p_post, self.nn.epsilon)
+        self.nn.w = get_w_pre_post(self.nn.P, self.nn.p_pre, self.nn.p_post, self.nn.epsilon, diagonal_zero=False)
 
         # Update the patterns
         self.update_patterns(protocol.network_representation)
@@ -419,6 +419,8 @@ class NetworkManager:
         :param reset: Whether the state variables values should be returned
         :param empty_history: whether the history should be cleaned
         """
+        if T_recall < 0.0:
+            raise ValueError('T_recall = ' + str(T_recall) + ' has to be positive')
         time_recalling = np.arange(0, T_recall, self.dt)
         time_cue = np.arange(0, T_cue, self.dt)
 
@@ -429,7 +431,6 @@ class NetworkManager:
 
         if empty_history:
             self.empty_history()
-            self.T_total = 0
         if reset:
             self.nn.reset_values(keep_connectivity=True)
             # Recall times
@@ -448,7 +449,6 @@ class NetworkManager:
         self.n_time_total += self.history['o'].shape[0]
         self.time = np.linspace(0, self.T_recall_total, num=self.n_time_total)
 
-
     def set_persistent_time_with_adaptation_gain(self, T_persistence, from_state=2, to_state=3):
         """
         This formula adjusts the adpatation gain g_a so the network with the current weights lasts for T_persistence
@@ -461,7 +461,7 @@ class NetworkManager:
 
         delta_w = self.nn.w[from_state, from_state] - self.nn.w[to_state, from_state]
         delta_beta = self.nn.beta[from_state] - self.nn.beta[to_state]
-        aux  = 1 - np.exp(-T_persistence / self.nn.tau_a) / (1 - self.nn.r)
+        aux = 1 - np.exp(-T_persistence / self.nn.tau_a) / (1 - self.nn.r)
         g_a = (delta_w + delta_beta) / aux
 
         self.nn.g_a = g_a
