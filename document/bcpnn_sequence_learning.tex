@@ -127,6 +127,38 @@ In order to illustrate how the dynamics of the system work together we show an e
 
 It is important to note that in this case we utilized a tailor-made connectivity matrix to clarify the relationship between the different component of the dynamics. Further down we will show how the same effect can be effectively achieved with a matrix that emerges from a self-organized learning process.  
 
+\subsubsection{Analytical solution}
+We can solve the deterministic equations analytical with the method of undetermined coefficients. There are two conditions, the unit that is active, and the unit that is not. 
+
+
+\begin{align*} 
+s(t) &= I_{fix} - g_a\left(\frac{C_{charge}}{1 - r} \right) e^{-\frac{t}{\tau_a}} + \left(s_0 - I_{fix} + g_a \left( \frac{C_{charge}}{1 - r}\right)\right)e^{-\frac{t}{\tau_s}} \\
+s(t) &= \beta + w - g_a + g_a \left(\frac{1 - a_0}{1 - r}\right) e^{-\frac{t}{\tau_a}} + \left(s_0 - \beta - w + g_a - g_a \frac{1 - a_0}{1 - r}\right) e^{-\frac{t}{\tau_s}}  \\ 
+s(t) &= \beta + w - g_a \left( \frac{a_0}{1 - r} \right) e^{-\frac{t}{\tau_a}} + \left(s_0 - \beta  - w  + g_a \left( \frac{a_0}{1 - r} \right) \right) e^{-\frac{t}{\tau_s}} 
+\end{align*}
+
+Where $r=\frac{\tau_s}{\tau_a}$ and $C_{charge}=a_0$ for the non-active case and $C_{charge} = a_0 - 1$ for the active case. Same for $I_{fix}=\beta + w$ for the non-active case and $I_{fix} = \beta + w - g_a$ for the active case.  
+
+If there was a previous activation of the unit the quantity $a_0$ will reflect how much the unit charged (and then discharged) before the current activation of the unit took place. 
+
+It is desirable to calculate how long does a unit $i$ becomes activated before the unit $j$ becomes activated. This is called persistent time $T_{persistence}$ and can be calculated from the equations above by making the assumption that the $T_{persistence}$ is far bigger than $\tau_s$, we also need to assume homogeneity in $\tau_a$.
+
+\begin{align*}
+\frac{T_{ij}}{\tau_a} &= \log \left(\frac{1}{1 - B_{ij}} \right) +\log \left( \frac{g_i}{g_j}a_i(0)f_i + (1 - a_j(0))f_j \right) 
+\end{align*}
+
+Where $B_{ij} = \frac{w_{jj} - w_{ij} + \beta_j - \beta_i}{g_j}$ is a measure of inertia or inverse of speed. The close to one it is, the longer the transition takes. Also, we see that $B_{ij}$ needs to be bigger than 0 for the transition to occur, from there we can derive the criteria that $g_j > \delta w + \delta \beta$. We also introduced the short hand $f_i = \frac{1}{1 - r_i}$ which is always bigger than 1 for this system and it represents delay effects introduced due to the capacitive nature of the uni.  We see that the presence of adaptive current in the unit that is active hastens the transition ($a_j(0) > 0$  makes $T_{ij}$ smaller by reducing the second term inside the second logarithm). On the other hand, the presence of adaptive current on the next unit ($a_i(0) > 0$) in the sequence slows the process by increasing the first term in the second logarithm. 
+
+We write now for completion the expressions of homogeneous parameters:
+
+\begin{align*}
+\frac{T_{ij}}{\tau_a} = \log \left(\frac{1}{1 - B_{ij}} \right) + \log \left( \frac{1}{1 - r} \right) + \log \bigg( a_i(0) + (1 - a_j(0)) \bigg) 
+\end{align*}
+
+The second term is of the order of $\tau_s$ usually and the third term accounts for memory effects on the adaptation.
+
+We can calculate from 
+
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.26]{simple_bcpnn_recall.pdf}
@@ -436,7 +468,40 @@ z(t) &= \frac{1}{\tau_z } \int_{-\infty}^{\infty} s(\tau) e^{-\frac{t - \tau}{\t
 z(t) &= \frac{1}{\tau_z } \int_{-\infty}^{t} s(\tau) e^{-\frac{t - \tau}{\tau_z}} d\tau  \text{ \qquad Heaviside argument positive}
 \end{align*}
 
-\textbf{Structure of a single filter}
+\textbf{Analytical probabilities}
+
+We can calculate the probability of a single unit being activated with the following formula: 
+\begin{align*}
+T_{total} *  p_i &= T_{activation} + \tau_z e^{\dfrac{T_{start} - T_{total}}  {\tau_z}} \left( e^{\dfrac{T_{activation}}{\tau_z}} - 1  \right)
+\end{align*}
+
+Where $T_{activation}$ is the the time that unit was activated during the course of the training. $T_{start}$ is the time at which the unit was activated, and it takes into account frontier effects because of the filter. Finally $T_{total}$ is the total training time.
+
+We can also calculate the probability of the joint probability between two units with the more complicated formula. 
+%T1 / tau1 + (Ts + T2) / tau2 - Tt / tau_p
+\begin{align*}
+p_{21} &= \frac{A  + B  - C}{T_{total}} \\
+A & = M_1  \tau_{pre} \left( e^{\dfrac{-(T_s - T_1)}{\tau_{pre}}} - e^{\dfrac{-(T_s + T_2 - T_1)}{\tau_{pre}}}  \right) \\
+B &= M_1 \tau_p \left(e^{\dfrac{T_1}{\tau_{pre}} + \dfrac{T_s}{\tau_{post}} - \dfrac{T_s + T_2}{\tau_p}} - e^{\dfrac{T_1}{\tau_{pre}} + \dfrac{T_s}{\tau_{post}} - \dfrac{T_s}{\tau_p}}   \right) \\
+C &=  M_1 M_2 \tau_p \left(e^{\dfrac{T_1}{\tau_{pre}} + \dfrac{T_s + T_2}{\tau_{post}} -\dfrac{T_{total}}{\tau_p}} - e^{\dfrac{T_1}{\tau_{pre}} + \dfrac{T_s + T_2}{\tau_{post}} -\dfrac{T_S + T_2}{\tau_p}} \right)  \\
+M_1 & =  1 - e^{-\dfrac{T_1}{\tau_{pre}}} \\ 
+M_2 & = 1 - e^{-\dfrac{T_2}{\tau_{post}}} \\
+\tau_p &=  \dfrac{\tau_{pre} \tau_{post}}{\tau_{pre} + \tau_{post}}
+\end{align*}
+
+Where $T_1$ is the time that the first unit is activated, $T_2$ is the time that the second unit remained activated, $T_s$ is the time at which the second unit become activated (If second unit is activated immediately after the first one then $T1=T_s$), finally $T_{total}$ is the total training time. 
+
+We can also calculate the joint probability of a unit with itself with the following formula
+
+\begin{align*}
+p_{11} &= \frac{A + B}{T_{total}} \\
+A &= T_1 -  M_{pre} \tau_{pre} - M_{post} \tau_{post} + M_p \tau_p  \\
+B &= \tau_p M_{pre} M_{post} \left( 1 - e^{-\dfrac{T_{total} - T_1}{\tau_p}} \right) \\ 
+M_{pre} &= 1 - e^{-\dfrac{T_1}{\tau_{pre}}} \\ 
+M_{post} &= 1 - e^{-\dfrac{T_1}{\tau_{post}}} \\
+M_p &= 1 - e^{-\dfrac{T_1}{\tau_{p}}} \\
+\tau_p &= \dfrac{\tau_{pre} \tau_{post}}{\tau_{pre} + \tau_{post}}
+\end{align*}
 
 
 \subsubsection{On-line rule}

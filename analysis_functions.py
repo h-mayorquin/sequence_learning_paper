@@ -191,43 +191,16 @@ def calculate_joint_probabilities_theo(T1, Ts, T2, Tt, tau1, tau2):
     A2 = np.exp(A2arg)
     aux2 = M1 * tau_p * (A1 - A2)
 
-    B1arg = T1 / tau1 + Ts + T2 / tau2 - Tt / tau_p
+    B1arg = T1 / tau1 + (Ts + T2) / tau2 - Tt / tau_p
     B1 = np.exp(B1arg)
-    B2arg = T1 / tau1 + Ts + T2 / tau2 - (Ts + T2) / tau_p
+    B2arg = T1 / tau1 + (Ts + T2) / tau2 - (Ts + T2) / tau_p
     B2 = np.exp(B2arg)
 
     aux3 = M1 * M2 * tau_p * (B1 - B2)
 
-    P_aux = aux1 + aux2 - aux3
+    P = (aux1 + aux2 - aux3) / Tt
 
-    return P_aux / Tt
-
-
-def write_this_one(T1, Ts, T2, Tt, tau1, tau2):
-    """
-    Calcualtes the joint probability of unit 1 and 2.
-    :param T1:The time that the unit 1 remained activated (training time)
-    :param Ts: The time at which the second unit becomes activated
-    :param T2: The time the unit 2 remained activated (training time)
-    :param Tt: The total time of observation
-    :param tau1: the time constant of the z-filter of pre-synaptic unit (z-filter)
-    :param tau2: the time constant of the z-filter of post-synaptic unit (z-filter)
-    :return: the joint probability.
-    """
-    tau_p = tau1 * tau2 / (tau1 + tau2)
-    M1 = 1 - np.exp(-T1 / tau1)
-    M2 = 1 - np.exp(-T2 / tau2)
-    A1 = np.exp(T1 / tau1) * np.exp(Ts / tau2)
-
-    aux1 = M1 * tau1 * (np.exp(-(Ts - T1) / tau1) - np.exp(-(Ts + T2 - T1) / tau1))
-    aux2 = M1 * tau_p * A1 \
-           * (np.exp(-(Ts + T2) / tau_p) - np.exp(-Ts / tau_p))
-    aux3 = M1 * M2 * tau_p * np.exp(T1 / tau1) * np.exp((Ts + T2) / tau2) \
-           * (np.exp(-(Tt / tau_p)) - np.exp(-(Ts + T2) / tau_p))
-
-    P_aux = aux1 + aux2 - aux3
-
-    return P_aux / Tt
+    return P
 
 
 def calculate_self_probability_theo(T1, Tt, tau1, tau2):
