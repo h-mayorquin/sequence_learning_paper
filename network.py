@@ -18,8 +18,8 @@ class Network:
 
         # Random number generator
         self.prng = prng
-        self.sigma_out = sigma_out
-        self.sigma_in = sigma_out / (np.sqrt(0.5 * tau_s))
+        self.sigma_out = sigma_out   # The variance that the system would have on the steady state if were to have it
+        self.sigma_in = sigma_out * np.sqrt(2 / tau_s)    # Ornstein-Uhlenbeck process
         self.epsilon = epsilon
 
         # Network parameters
@@ -67,14 +67,13 @@ class Network:
         self.w = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
         self.beta = np.full(shape=self.n_units, fill_value=0.0)
 
-
     def parameters(self):
         """
         Get the parameters of the model
 
         :return: a dictionary with the parameters
         """
-        parameters = {'tau_s': self.tau_m, 'tau_z_post': self.tau_z_post, 'tau_z_pre': self.tau_z_pre,
+        parameters = {'tau_s': self.tau_s, 'tau_z_post': self.tau_z_post, 'tau_z_pre': self.tau_z_pre,
                       'tau_a': self.tau_a, 'g_a': self.g_a, 'g_I':self.g_I,  'epsilon': self.epsilon,
                       'G': self.G, 'sigma_out':self.sigma_out, 'sigma_in': self.sigma_in,
                       'perfect': self.perfect, 'strict_maximum': self.strict_maximum}
@@ -102,7 +101,6 @@ class Network:
             self.p_pre = np.full(shape=self.n_units, fill_vale=0.0)
             self.p_post = np.full(shape=self.n_units, fill_value=0.0)
             self.P = np.full(shape=(self.n_units, self.n_units), fill_value=0.0)
-
 
     def update_continuous(self, dt=1.0, sigma=None):
         # Get the noise
@@ -403,6 +401,9 @@ class NetworkManager:
         w = create_weight_matrix(minicolumns, sequence, ws, wn, wb, alpha, extension, w=None)
         self.nn.w = w
 
+        p = np.ones(self.nn.n_units) * (1.0/ len(sequence))
+        self.nn.beta = get_beta(p, self.nn.epsilon)
+
         # Updated the patterns in the network
         nr = self.canonical_network_representation
         self.update_patterns(nr)
@@ -410,7 +411,7 @@ class NetworkManager:
         return w
 
     def run_network_recall(self, T_recall=10.0, T_cue=0.0, I_cue=None, reset=True,
-                           empty_history=True, plasticity_on=False):
+                           empty_history=True, plasticity_on=False, stable_start=True):
         """
         Run network free recall
         :param T_recall: The total time of recalling
@@ -432,10 +433,26 @@ class NetworkManager:
         if empty_history:
             self.empty_history()
         if reset:
+            # Never destroy connectivity while recalling
             self.nn.reset_values(keep_connectivity=True)
             # Recall times
             self.T_recall_total = 0
             self.n_time_total = 0
+
+        # Set initial conditions of the current to the clamping if available
+        if stable_start:
+            if I_cue is None:
+                pass
+            elif isinstance(I_cue, (float, int)):
+                self.nn.s = self.nn.g_I * self.patterns_dic[I_cue].astype('float')
+                self.nn.o = strict_max(self.nn.s, minicolumns=self.nn.minicolumns)
+                self.nn.i = self.nn.w @ self.nn.o / self.nn.normalized_constant
+                self.nn.s += self.nn.i + self.nn.beta - self.nn.g_a * self.nn.a
+            else:
+                self.nn.s = self.nn.g_I * I_cue  # The pattern is the input
+                self.nn.o = strict_max(self.nn.s, minicolumns=self.nn.minicolumns)
+                self.nn.i = self.nn.w @ self.nn.o / self.nn.normalized_constant
+                self.nn.s += self.nn.i + self.nn.beta - self.nn.g_a * self.nn.a
 
         # Run the cue
         if T_cue > 0.001:

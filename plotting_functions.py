@@ -21,6 +21,7 @@ class MidpointNormalize(matplotlib.colors.Normalize):
         x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
         return np.ma.masked_array(np.interp(value, x, y))
 
+
 def set_text(ax, coordinate_from, coordinate_to, fontsize=25, color='black'):
     """
     Set text in an axis
@@ -53,8 +54,8 @@ def plot_artificial_sequences(sequences, minicolumns):
 
 
 def plot_weight_matrix(manager, one_hypercolum=True, ax=None, vmin=None):
-
     with sns.axes_style("whitegrid", {'axes.grid': False}):
+
         w = manager.nn.w
         title = 'w'
 
@@ -67,11 +68,32 @@ def plot_weight_matrix(manager, one_hypercolum=True, ax=None, vmin=None):
 
         if ax is None:
             # sns.set_style("whitegrid", {'axes.grid': False})
-            fig = plt.figure(figsize=(16, 12))
+            fig = plt.figure()
             ax = fig.add_subplot(111)
 
         im = ax.imshow(w, cmap=cmap, interpolation='None', norm=norm, vmin=vmin)
         ax.set_title(title + ' connectivity')
+
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        ax.get_figure().colorbar(im, ax=ax, cax=cax)
+
+
+def plot_persistent_matrix(manager, ax=None):
+    with sns.axes_style("whitegrid", {'axes.grid': False}):
+        title = r'$T_{persistence}$'
+
+        cmap = matplotlib.cm.Reds_r
+        cmap.set_bad(color='white')
+        cmap.set_under('black')
+
+        if ax is None:
+            # sns.set_style("whitegrid", {'axes.grid': False})
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+
+        im = ax.imshow(manager.T, cmap=cmap, interpolation='None', vmin=0.0)
+        ax.set_title(title)
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes('right', size='5%', pad=0.05)
