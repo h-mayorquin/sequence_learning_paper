@@ -112,7 +112,7 @@ class Network:
         # Calculate currents
         self.i = self.w @ self.o / self.normalized_constant
         if self.perfect:
-            self.s = self.i + self.beta - self.g_a * self.a + self.g_I * self.I  + noise
+            self.s = self.i + self.beta - self.g_a * self.a + self.g_I * self.I + noise
         else:
             self.s += (dt / self.tau_s) * (self.i  # Current
                                            + self.beta  # Bias

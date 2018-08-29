@@ -154,7 +154,7 @@ def calculate_patterns_timings(winning_patterns, dt, remove=0):
     return patterns_timings
 
 
-def calculate_probability_theo(Tp, Tstart, Ttotal, tau_z):
+def calculate_probability_theo2(Tp, Tstart, Ttotal, tau_z):
     """
     Calculate the probability of the unit being activated.
     :param tau_z: the time constant of the uncertainty or z-filters
@@ -165,6 +165,22 @@ def calculate_probability_theo(Tp, Tstart, Ttotal, tau_z):
     """
     p = Tp - tau_z * np.exp((Tstart - Ttotal) / tau_z) * (np.exp(Tp / tau_z) - 1)
 
+    return p / Ttotal
+
+
+def calculate_probability_theo(Tp, Tstart, Ttotal, tau_z):
+    """
+    Calculate the probability of the unit being activated.
+    :param tau_z: the time constant of the uncertainty or z-filters
+    :param Tp: The training time, the time that the unit was activated
+    :param Tstart: The time at which the unit was activated
+    :param Ttotal: The total time of observation
+    :return: the probability of the unit being active
+    """
+    M = 1 - np.exp(-Tp / tau_z)
+    #p = Tp + tau_z * M * (2  - np.exp(-(Ttotal - Tp)/tau_z))
+
+    p = Tp - tau_z * M + tau_z * M * (1 - np.exp(-(Ttotal - Tp) / tau_z))
     return p / Ttotal
 
 
@@ -257,3 +273,52 @@ def calculate_get_weights_theo(T1, T2, Tt, tau_pre, tau_post, Tr=None, IPI=None)
     w_back = np.log10(pji / (pi * pj))
 
     return w_self, w_next, w_rest, w_back
+
+
+def calculate_triad_connectivity(tt1, tt2, tt3, ipi1, ipi2, tau_z_pre, tau_z_post,
+                                 base_time, base_ipi, resting_time, n_patterns):
+
+    connectivity_dictionary = {}
+    Tt = (n_patterns - 3) * base_time + tt1 + tt2 + tt3 + ipi1 + ipi2 + \
+         (n_patterns - 2) * base_ipi + resting_time
+
+    # Single probabilities
+    p1_pre = calculate_probability_theo(Tp=tt1, Tstart=0.0, Ttotal=Tt, tau_z=tau_z_pre)
+    p2_pre = calculate_probability_theo(Tp=tt2, Tstart=0.0, Ttotal=Tt, tau_z=tau_z_pre)
+    p3_pre = calculate_probability_theo(Tp=tt3, Tstart=0.0, Ttotal=Tt, tau_z=tau_z_pre)
+
+    p1_post = calculate_probability_theo(Tp=tt1, Tstart=0.0, Ttotal=Tt, tau_z=tau_z_post)
+    p2_post = calculate_probability_theo(Tp=tt2, Tstart=0.0, Ttotal=Tt, tau_z=tau_z_post)
+    p3_post = calculate_probability_theo(Tp=tt3, Tstart=0.0, Ttotal=Tt, tau_z=tau_z_post)
+
+    # joint-self probabilities
+    p11 = calculate_self_probability_theo(T1=tt1, Tt=Tt, tau1=tau_z_pre, tau2=tau_z_post)
+    p22 = calculate_self_probability_theo(T1=tt2, Tt=Tt, tau1=tau_z_pre, tau2=tau_z_post)
+    p33 = calculate_self_probability_theo(T1=tt3, Tt=Tt, tau1=tau_z_pre, tau2=tau_z_post)
+
+    # Joint probabilities
+    Ts = tt1 + ipi1
+    p21 = calculate_joint_probabilities_theo(T1=tt1, Ts=Ts, T2=tt2, Tt=Tt, tau1=tau_z_pre, tau2=tau_z_post)
+    Ts = tt1 + ipi1 + tt2 + ipi2
+    p31 = calculate_joint_probabilities_theo(T1=tt1, Ts=Ts, T2=tt3, Tt=Tt, tau1=tau_z_pre, tau2=tau_z_post)
+    Ts = tt1 + ipi1
+    p12 = calculate_joint_probabilities_theo(T1=tt1, Ts=Ts, T2=tt2, Tt=Tt, tau1=tau_z_post, tau2=tau_z_pre)
+    Ts = tt2 + ipi2
+    p32 = calculate_joint_probabilities_theo(T1=tt2, Ts=Ts, T2=tt3, Tt=Tt, tau1=tau_z_pre, tau2=tau_z_post)
+    Ts = tt1 + ipi1 + tt2 + ipi2
+    p13 = calculate_joint_probabilities_theo(T1=tt1, Ts=Ts, T2=tt3, Tt=Tt, tau1=tau_z_post, tau2=tau_z_pre)
+    Ts = tt2 + ipi2
+    p23 = calculate_joint_probabilities_theo(T1=tt2, Ts=Ts, T2=tt3, Tt=Tt, tau1=tau_z_post, tau2=tau_z_pre)
+
+    # Weights
+    w11 = np.log10(p11 / (p1_pre * p1_post))
+    w12 = np.log10(p12 / (p1_pre * p2_post))
+    w13 = np.log10(p13 / (p1_pre * p3_post))
+    w21 = np.log10(p21 / (p2_pre * p1_post))
+    w22 = np.log10(p22 / (p2_pre * p2_post))
+    w23 = np.log10(p23 / (p2_pre * p3_post))
+    w31 = np.log10(p31 / (p3_pre * p1_post))
+    w32 = np.log10(p32 / (p3_pre * p2_post))
+    w33 = np.log10(p33 / (p3_pre * p3_post))
+
+    return locals()
