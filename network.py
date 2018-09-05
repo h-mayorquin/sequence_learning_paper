@@ -13,7 +13,7 @@ epoch_end_string = 'epoch_end'
 
 class Network:
     def __init__(self, hypercolumns, minicolumns, G=1.0, tau_s=0.010, tau_z_pre=0.050, tau_z_post=0.005,
-                 tau_a=0.250, g_a=1.0, g_I=10.0, sigma_out=0.0, epsilon=1e-60, prng=np.random,
+                 tau_a=0.250, g_a=1.0, g_I=10.0, sigma_out=0.0, epsilon=1e-60, g_beta=1.0, prng=np.random,
                  strict_maximum=True, perfect=False, normalized_currents=True):
 
         # Random number generator
@@ -41,6 +41,7 @@ class Network:
         self.tau_s = tau_s
         self.tau_a = tau_a
         self.r = self.tau_s / self.tau_a
+        self.g_beta = g_beta
         self.g_a = g_a
         self.g_I = g_I
         self.tau_z_pre = tau_z_pre
@@ -112,10 +113,10 @@ class Network:
         # Calculate currents
         self.i = self.w @ self.o / self.normalized_constant
         if self.perfect:
-            self.s = self.i + self.beta - self.g_a * self.a + self.g_I * self.I + noise
+            self.s = self.i + self.g_beta * self.beta - self.g_a * self.a + self.g_I * self.I + noise
         else:
             self.s += (dt / self.tau_s) * (self.i  # Current
-                                           + self.beta  # Bias
+                                           + self.g_beta * self.beta  # Bias
                                            + self.g_I * self.I  # Input current
                                            - self.g_a * self.a  # Adaptation
                                            + noise  # This last term is the noise

@@ -78,6 +78,8 @@ def plot_weight_matrix(manager, one_hypercolum=True, ax=None, vmin=None):
         cax = divider.append_axes('right', size='5%', pad=0.05)
         ax.get_figure().colorbar(im, ax=ax, cax=cax)
 
+    return ax
+
 
 def plot_persistent_matrix(manager, ax=None):
     with sns.axes_style("whitegrid", {'axes.grid': False}):
@@ -238,7 +240,7 @@ def plot_network_activity_angle(manager, recall=True):
 
     ax2 = fig.add_subplot(122)
     im2 = ax2.imshow(angles, aspect='auto', interpolation='None', cmap=cmap, vmax=1, vmin=0, extent=extent2)
-    ax2.set_title('Winning pattern')
+    ax2.set_title('Angles with stored')
     ax2.set_xlabel('Patterns')
 
     fig.subplots_adjust(right=0.8)
