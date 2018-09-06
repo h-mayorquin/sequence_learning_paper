@@ -78,11 +78,13 @@ manager = NetworkManager(nn=nn, dt=dt, values_to_save=values_to_save)
 manager.run_artificial_protocol(ws=w_self, wn=w_next, wb=w_back, alpha=0.5)
 w = simple_bcpnn_matrix(minicolumns, w_self, w_next, w_rest, w_back)
 nn.w = w
+T_persistence = 0.100
+manager.set_persistent_time_with_adaptation_gain(T_persistence=T_persistence)
 
 nn.g_beta = 0.0
 
 # Recall
-T_recall = 2.2
+T_recall = 1.0
 T_cue = 0.080
 I_cue = 0.0
 

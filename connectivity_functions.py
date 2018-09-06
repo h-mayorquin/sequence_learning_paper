@@ -95,6 +95,7 @@ def strict_max(x, minicolumns):
 
     return z.reshape(x.size)
 
+
 def fill_connection(w, state_from, state_to, minicolumns, value):
     for hypercolumn_from, minicolumn_from in enumerate(state_from):
         for hypercolum_to, minicolumn_to in enumerate(state_to):
@@ -103,13 +104,17 @@ def fill_connection(w, state_from, state_to, minicolumns, value):
             w[index_to, index_from] = value
 
 
-def create_weight_matrix(minicolumns, sequence, ws, wn, wb, alpha, extension, w=None):
+def create_weight_matrix(minicolumns, sequence, ws, wn, wb, alpha, alpha_back=None,
+                         extension=2, w=None):
     if isinstance(ws, numbers.Number):
         ws = np.full(minicolumns, ws)
     if isinstance(wn, numbers.Number):
         wn = np.full(minicolumns, wn)
     if isinstance(wb, numbers.Number):
         wb = np.full(minicolumns, wb)
+
+    if alpha_back is None:
+        alpha_back = alpha
 
     hypercolumns = len(sequence[0])
     if w is None:
@@ -129,7 +134,7 @@ def create_weight_matrix(minicolumns, sequence, ws, wn, wb, alpha, extension, w=
         state_from = sequence[state_index]
         effective_extension = min(extension + 1, state_index)
         for last_index in range(effective_extension):
-            effective_value = value - last_index * alpha
+            effective_value = value - last_index * alpha_back
             state_to = sequence[state_index - 1 - last_index]
             fill_connection(w, state_from, state_to, minicolumns, effective_value)
 

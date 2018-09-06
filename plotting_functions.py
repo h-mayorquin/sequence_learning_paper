@@ -36,7 +36,7 @@ def set_text(ax, coordinate_from, coordinate_to, fontsize=25, color='black'):
             rotation=315, fontsize=fontsize, color=color)
 
 
-def plot_artificial_sequences(sequences, minicolumns):
+def plot_wsequences(sequences, minicolumns):
     sns.set_style("whitegrid", {'axes.grid': False})
     sequence_matrix = np.zeros((len(sequences), minicolumns))
     for index, sequence in enumerate(sequences):

@@ -390,7 +390,7 @@ class NetworkManager:
 
         return timed_input
 
-    def run_artificial_protocol(self, ws=1.0, wn=0.25, wb=-3.0, alpha=0.5):
+    def run_artificial_protocol(self, ws=1.0, wn=0.25, wb=-3.0, alpha=0.5, alpha_back=None, cycle=False):
         """
         This creates an artificial matrix
         :return: w, the weight matrix that was created
@@ -398,8 +398,11 @@ class NetworkManager:
         minicolumns = self.nn.minicolumns
         extension = self.nn.minicolumns
         sequence = self.canonical_activity_representation
+        if cycle:
+            sequence = np.append(sequence, sequence[0]).reshape(self.nn.minicolumns + 1, self.nn.hypercolumns)
 
-        w = create_weight_matrix(minicolumns, sequence, ws, wn, wb, alpha, extension, w=None)
+        w = create_weight_matrix(minicolumns, sequence, ws, wn, wb, alpha,
+                                 alpha_back, extension, w=None)
         self.nn.w = w
 
         p = np.ones(self.nn.n_units) * (1.0/ len(sequence))
