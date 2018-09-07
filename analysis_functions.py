@@ -278,7 +278,6 @@ def calculate_get_weights_theo(T1, T2, Tt, tau_pre, tau_post, Tr=None, IPI=None)
 def calculate_triad_connectivity(tt1, tt2, tt3, ipi1, ipi2, tau_z_pre, tau_z_post,
                                  base_time, base_ipi, resting_time, n_patterns):
 
-    connectivity_dictionary = {}
     Tt = (n_patterns - 3) * base_time + tt1 + tt2 + tt3 + ipi1 + ipi2 + \
          (n_patterns - 2) * base_ipi + resting_time
 
@@ -320,5 +319,9 @@ def calculate_triad_connectivity(tt1, tt2, tt3, ipi1, ipi2, tau_z_pre, tau_z_pos
     w31 = np.log10(p31 / (p3_pre * p1_post))
     w32 = np.log10(p32 / (p3_pre * p2_post))
     w33 = np.log10(p33 / (p3_pre * p3_post))
+
+    beta1 = np.log10(p1_post)
+    beta2 = np.log10(p2_post)
+    beta3 = np.log10(p3_post)
 
     return locals()

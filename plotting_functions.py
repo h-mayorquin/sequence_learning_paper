@@ -36,7 +36,7 @@ def set_text(ax, coordinate_from, coordinate_to, fontsize=25, color='black'):
             rotation=315, fontsize=fontsize, color=color)
 
 
-def plot_wsequences(sequences, minicolumns):
+def plot_sequences(sequences, minicolumns):
     sns.set_style("whitegrid", {'axes.grid': False})
     sequence_matrix = np.zeros((len(sequences), minicolumns))
     for index, sequence in enumerate(sequences):
@@ -211,13 +211,14 @@ def plot_sequence(manager):
     cb = fig.colorbar(im1, cax=cbar_ax, boundaries=bounds)
 
 
-def plot_network_activity_angle(manager, recall=True):
+def plot_network_activity_angle(manager, recall=True, cmap=None, ax=None):
     if recall:
         T_total = manager.T_recall_total
     else:
         T_total = manager.T_training_total
 
     history = manager.history
+
     # Get the angles
     angles = calculate_angle_from_history(manager)
     patterns_dic = manager.patterns_dic
@@ -225,28 +226,37 @@ def plot_network_activity_angle(manager, recall=True):
     # Plot
     sns.set_style("whitegrid", {'axes.grid': False})
 
-    cmap = 'plasma'
+    if cmap is None:
+        cmap = 'plasma'
+
     extent1 = [0, manager.nn.minicolumns * manager.nn.hypercolumns, T_total, 0]
     extent2 = [0, n_patters, T_total, 0]
 
-    fig = plt.figure(figsize=(16, 12))
+    if ax is None:
+        fig = plt.figure(figsize=(16, 12))
+        ax1 = fig.add_subplot(121)
+        ax2 = fig.add_subplot(122)
 
-    ax1 = fig.add_subplot(121)
+    else:
+        ax1, ax2 = ax
+        fig = ax1.figure
+
     im1 = ax1.imshow(history['o'], aspect='auto', interpolation='None', cmap=cmap, vmax=1, vmin=0, extent=extent1)
     ax1.set_title('Unit activation')
 
     ax1.set_xlabel('Units')
     ax1.set_ylabel('Time')
 
-    ax2 = fig.add_subplot(122)
     im2 = ax2.imshow(angles, aspect='auto', interpolation='None', cmap=cmap, vmax=1, vmin=0, extent=extent2)
     ax2.set_title('Angles with stored')
     ax2.set_xlabel('Patterns')
 
-    fig.subplots_adjust(right=0.8)
-    cbar_ax = fig.add_axes([0.85, 0.12, 0.05, 0.79])
-    fig.colorbar(im1, cax=cbar_ax)
+    if ax is None:
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.12, 0.05, 0.79])
+        fig.colorbar(im1, cax=cbar_ax)
 
+    return [ax1, ax2]
 
 def plot_network_activity(manager):
 
