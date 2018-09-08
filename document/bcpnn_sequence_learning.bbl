@@ -5,4 +5,41 @@ K.~Lashley.
 \newblock The problem of serial order in behavior.
 \newblock In {\em Cerebral mechanisms in behavior}, pages 112--136. 1951.
 
+\bibitem{roach2016memory}
+James~P Roach, Leonard~M Sander, and Michal~R Zochowski.
+\newblock Memory recall and spike-frequency adaptation.
+\newblock {\em Physical Review E}, 93(5):052307, 2016.
+
+\bibitem{recanatesi2017memory}
+Stefano Recanatesi, Mikhail Katkov, and Misha Tsodyks.
+\newblock Memory states and transitions between them in attractor neural
+  networks.
+\newblock {\em Neural computation}, 29(10):2684--2711, 2017.
+
+\bibitem{sandberg2002bayesian}
+A~Sandberg, A.~Lansner, K.~Petersson, and O.~Ekeberg.
+\newblock A bayesian attractor network with incremental learning.
+\newblock {\em Network: Computation in neural systems}, 13(2):179--194, 2002.
+
+\bibitem{tully2016spike}
+P.~Tully, H.~Lind{\'e}n, M.~Hennig, and A~Lansner.
+\newblock Spike-based bayesian-hebbian learning of temporal sequences.
+\newblock {\em PLoS computational biology}, 12(5):e1004954, 2016.
+
+\bibitem{yuille1998winner}
+Alan~L Yuille and Davi Geiger.
+\newblock Winner-take-all mechanisms, the handbook of brain theory and neural
+  networks, 1998.
+
+\bibitem{murray2017learning}
+J.~M Murray et~al.
+\newblock Learning multiple variable-speed sequences in striatum via cortical
+  tutoring.
+\newblock {\em eLife}, 6:e26084, 2017.
+
+\bibitem{guyon1988storage}
+I~Guyon, L~Personnaz, JP~Nadal, and G~Dreyfus.
+\newblock Storage and retrieval of complex sequences in neural networks.
+\newblock {\em Physical Review A}, 38(12):6365, 1988.
+
 \end{thebibliography}
