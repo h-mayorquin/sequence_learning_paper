@@ -119,8 +119,8 @@ class Network:
                                            + self.g_beta * self.beta  # Bias
                                            + self.g_I * self.I  # Input current
                                            - self.g_a * self.a  # Adaptation
-                                           + noise  # This last term is the noise
                                            - self.s)  # s follow all of the s above
+            self.s += noise
         # Non-linearity
         if self.strict_maximum:
             self.o = strict_max(self.s, minicolumns=self.minicolumns)

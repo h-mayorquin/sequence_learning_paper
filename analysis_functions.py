@@ -79,6 +79,8 @@ def calculate_recall_quantities(manager, nr, T_recall, T_cue, remove=0.009, rese
             success = 0.0
             break
 
+    if len(pattern_sequence) == 0:
+        success = 0.0
     persistent_times = [x[1] for x in timings]
     return success, pattern_sequence, persistent_times, timings
 

@@ -258,6 +258,7 @@ def plot_network_activity_angle(manager, recall=True, cmap=None, ax=None):
 
     return [ax1, ax2]
 
+
 def plot_network_activity(manager):
 
     T_total = manager.T_total
