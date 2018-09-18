@@ -79,7 +79,7 @@ def calculate_recall_quantities(manager, nr, T_recall, T_cue, remove=0.009, rese
             success = 0.0
             break
 
-    if len(pattern_sequence) == 0:
+    if len(pattern_sequence) < n_seq:
         success = 0.0
     persistent_times = [x[1] for x in timings]
     return success, pattern_sequence, persistent_times, timings
@@ -322,8 +322,17 @@ def calculate_triad_connectivity(tt1, tt2, tt3, ipi1, ipi2, tau_z_pre, tau_z_pos
     w32 = np.log10(p32 / (p3_pre * p2_post))
     w33 = np.log10(p33 / (p3_pre * p3_post))
 
+    # Betas
     beta1 = np.log10(p1_post)
     beta2 = np.log10(p2_post)
     beta3 = np.log10(p3_post)
+
+    # Bs (un-normalized)
+    B12 = w11 - w12 + beta2 - beta1
+    B13 = w11 - w31 + beta3 - beta1
+    B21 = w11 - w21 + beta1 - beta2
+    B23 = w33 - w32 + beta3 - beta2
+    B31 = w11 - w31 + beta1 - beta3
+    B32 = w22 - w32 + beta2 - beta3
 
     return locals()
