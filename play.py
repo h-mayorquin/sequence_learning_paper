@@ -11,13 +11,15 @@ from analysis_functions import calculate_probability_theo, calculate_joint_proba
 from analysis_functions import calculate_self_probability_theo, calculate_get_weights_theo
 
 epsilon = 10e-80
+dt = 0.001
+remove = 0.010
 
 np.seterr(over='raise')
 
 strict_maximum = True
 
-g_a = 1.0
-g_I = 2.0
+g_a = 2.0
+g_I = 10.0
 tau_a = 0.250
 G = 1.0
 sigma_out = 0.0
@@ -25,63 +27,42 @@ tau_s = 0.010
 tau_z_pre = 0.025
 tau_z_post = 0.005
 
-hypercolumns = 10
-minicolumns = 20
-n_patterns = minicolumns
-representation_overlap = 0.0
-sequence_overlap = 1.0
-
+hypercolumns = 1
+minicolumns = 10
+n_patterns = 10
 
 # Training protocol
-ws = 1.0
-wn = 0.5
-wb = -0.5
-alpha = 0.5
-alpha_back = 3.0
-
-T_persistence = 0.050
+training_times_base = 0.100
+training_times = [training_times_base for i in range(n_patterns)]
+ipi_base = 0.000
+inter_pulse_intervals = [ipi_base for i in range(n_patterns)]
+inter_sequence_interval = 0.0
+resting_time = 0.0
+epochs = 1
+T_persistence = 0.150
 
 # Manager properties
-dt = 0.001
 values_to_save = ['o']
-
 
 # Neural Network
 nn = Network(hypercolumns, minicolumns, G=G, tau_s=tau_s, tau_z_pre=tau_z_pre, tau_z_post=tau_z_post,
-             tau_a=tau_a, g_a=g_a, g_I=g_I, sigma_out=sigma_out, epsilon=epsilon, prng=np.random,
-             strict_maximum=strict_maximum, perfect=False, normalized_currents=True)
+                 tau_a=tau_a, g_a=g_a, g_I=g_I, sigma_out=sigma_out, epsilon=epsilon, prng=np.random,
+                 strict_maximum=strict_maximum, perfect=False, normalized_currents=True)
+
 
 # Build the manager
 manager = NetworkManager(nn=nn, dt=dt, values_to_save=values_to_save)
-# Build the manager
+# Build the representation
+activity_representation = (np.array([0, 1, 2, 1, 3, 4, 5, 6, 7, 8])).reshape((10, 1))
+representation = PatternsRepresentation(activity_representation,
+                                        minicolumns=minicolumns)
 
+# Build the protocol
+protocol = Protocol()
+protocol.simple_protocol(representation, training_times=training_times, inter_pulse_intervals=inter_pulse_intervals,
+                    inter_sequence_interval=inter_sequence_interval, epochs=epochs, resting_time=resting_time)
 
-from copy import deepcopy
+# Run the protocol
+timed_input = manager.run_network_protocol_offline(protocol=protocol)
 
-print('p', representation_overlap)
-print('q', sequence_overlap)
-print('minicolumns', minicolumns)
-print('hypercolumns', hypercolumns)
-
-
-def create_overalaped_representation2(manager, representation_overlap, sequence_overlap):
-    x = deepcopy(manager.canonical_activity_representation)
-
-    to_modify = int(representation_overlap * len(x[0]))
-    sequence_size = int(0.5 * len(x))
-    sequence_overlap_size = int(sequence_overlap * sequence_size)
-    start_point = int(0.5 * sequence_size + sequence_size - np.floor(sequence_overlap_size/ 2.0))
-    end_point = start_point + sequence_overlap_size
-
-    print('middle', int(0.5 * sequence_size) + sequence_size)
-    print('sequence size', sequence_size)
-    print('size to change sequence', sequence_overlap_size)
-    print('start', 'end', start_point, end_point)
-    for sequence_index in range(start_point, end_point):
-        pattern = x[sequence_index]
-        pattern[:to_modify] = manager.canonical_activity_representation[sequence_index - start_point][:to_modify]
-
-    return x
-
-activity = create_overalaped_representation2(manager, representation_overlap, sequence_overlap)
-print(activity)
+manager.set_persistent_time_with_adaptation_gain(T_persistence=T_persistence, from_state=5, to_state=6)
