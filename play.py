@@ -1,5 +1,6 @@
 import IPython
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from connectivity_functions import fill_connection
 from patterns_representation import create_canonical_activity_representation
@@ -11,38 +12,46 @@ from analysis_functions import calculate_probability_theo, calculate_joint_proba
 from analysis_functions import calculate_self_probability_theo, calculate_get_weights_theo
 
 epsilon = 10e-80
-dt = 0.001
+vmin = -3.0
 remove = 0.010
-
-np.seterr(over='raise')
 
 strict_maximum = True
 
-g_a = 2.0
-g_I = 10.0
-tau_a = 0.250
-G = 1.0
-sigma_out = 0.0
+dt = 0.001
 tau_s = 0.010
-tau_z_pre = 0.025
-tau_z_post = 0.005
+tau_a = 0.250
+g_I = 2.0
+g_a = 2.0
+G = 50.0
 
-hypercolumns = 1
-minicolumns = 10
-n_patterns = 10
+np.seterr(over='raise')
+activity_representation = np.array([[0, 0, 0], [1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4], [5, 5, 5],
+     [10, 10, 10], [11, 11, 11], [2, 2, 12], [3, 3, 13], [14, 14, 14], [15, 15, 15]])
+
+sigma_out = 0.0
+tau_z_pre = 0.025
+tau_z_post = 0.020
+
+hypercolumns = 3
+minicolumns = 16
+n_patterns = 12
+patterns_per_sequence = 6
+representation_overlap = 0.75
+sequence_overlap = 0.5
 
 # Training protocol
 training_times_base = 0.100
 training_times = [training_times_base for i in range(n_patterns)]
-ipi_base = 0.000
+ipi_base = 0.0
 inter_pulse_intervals = [ipi_base for i in range(n_patterns)]
-inter_sequence_interval = 0.0
-resting_time = 0.0
+inter_sequence_interval = 1.0
+resting_time = 1.0
 epochs = 1
-T_persistence = 0.150
+T_persistence = 0.100
 
 # Manager properties
 values_to_save = ['o']
+
 
 # Neural Network
 nn = Network(hypercolumns, minicolumns, G=G, tau_s=tau_s, tau_z_pre=tau_z_pre, tau_z_post=tau_z_post,
@@ -52,10 +61,11 @@ nn = Network(hypercolumns, minicolumns, G=G, tau_s=tau_s, tau_z_pre=tau_z_pre, t
 
 # Build the manager
 manager = NetworkManager(nn=nn, dt=dt, values_to_save=values_to_save)
+
 # Build the representation
-activity_representation = (np.array([0, 1, 2, 1, 3, 4, 5, 6, 7, 8])).reshape((10, 1))
-representation = PatternsRepresentation(activity_representation,
-                                        minicolumns=minicolumns)
+representation = PatternsRepresentation(activity_representation, minicolumns=minicolumns)
+inter_pulse_intervals[patterns_per_sequence - 1] = inter_sequence_interval
+
 
 # Build the protocol
 protocol = Protocol()
@@ -64,5 +74,5 @@ protocol.simple_protocol(representation, training_times=training_times, inter_pu
 
 # Run the protocol
 timed_input = manager.run_network_protocol_offline(protocol=protocol)
-
-manager.set_persistent_time_with_adaptation_gain(T_persistence=T_persistence, from_state=5, to_state=6)
+# Set the persistent time
+manager.set_persistent_time_with_adaptation_gain(T_persistence=T_persistence)

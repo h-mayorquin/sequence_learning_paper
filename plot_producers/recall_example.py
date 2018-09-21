@@ -155,10 +155,6 @@ ax_conn = fig.add_axes(rect)
 ax_conn = plot_weight_matrix(manager, ax=ax_conn, vmin=vmin)
 
 
-ax_conn.set_xlabel('pre-synaptic')
-ax_conn.set_ylabel('post-synaptic')
-ax_conn.xaxis.set_ticklabels([])
-ax_conn.yaxis.set_ticklabels([])
 
 if annotations:
     letter_color = 'black'
