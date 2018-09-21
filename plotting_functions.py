@@ -53,11 +53,10 @@ def plot_sequences(sequences, minicolumns):
     sns.set()
 
 
-def plot_weight_matrix(manager, one_hypercolum=True, ax=None, vmin=None):
+def plot_weight_matrix(manager, one_hypercolum=True, ax=None, vmin=None, title=True):
     with sns.axes_style("whitegrid", {'axes.grid': False}):
 
         w = manager.nn.w
-        title = 'w'
 
         if one_hypercolum:
             w = w[:manager.nn.minicolumns, :manager.nn.minicolumns]
@@ -72,7 +71,9 @@ def plot_weight_matrix(manager, one_hypercolum=True, ax=None, vmin=None):
             ax = fig.add_subplot(111)
 
         im = ax.imshow(w, cmap=cmap, interpolation='None', norm=norm, vmin=vmin)
-        ax.set_title(title + ' connectivity')
+
+        if title:
+            ax.set_title('w connectivity')
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes('right', size='5%', pad=0.05)
@@ -211,14 +212,13 @@ def plot_sequence(manager):
     cb = fig.colorbar(im1, cax=cbar_ax, boundaries=bounds)
 
 
-def plot_network_activity_angle(manager, recall=True, cmap=None, ax=None):
+def plot_network_activity_angle(manager, recall=True, cmap=None, ax=None, title=True, time_y=True):
     if recall:
         T_total = manager.T_recall_total
     else:
         T_total = manager.T_training_total
 
     history = manager.history
-
     # Get the angles
     angles = calculate_angle_from_history(manager)
     patterns_dic = manager.patterns_dic
@@ -229,32 +229,57 @@ def plot_network_activity_angle(manager, recall=True, cmap=None, ax=None):
     if cmap is None:
         cmap = 'plasma'
 
-    extent1 = [0, manager.nn.minicolumns * manager.nn.hypercolumns, T_total, 0]
-    extent2 = [0, n_patters, T_total, 0]
+    if title:
+        title1 = 'Unit activation'
+        title2 = 'Angles with stored'
+    else:
+        title1 = ''
+        title2 = ''
 
     if ax is None:
         fig = plt.figure(figsize=(16, 12))
         ax1 = fig.add_subplot(121)
         ax2 = fig.add_subplot(122)
-
     else:
         ax1, ax2 = ax
         fig = ax1.figure
 
-    im1 = ax1.imshow(history['o'], aspect='auto', interpolation='None', cmap=cmap, vmax=1, vmin=0, extent=extent1)
-    ax1.set_title('Unit activation')
+    if time_y:
+        extent1 = [0, manager.nn.minicolumns * manager.nn.hypercolumns, T_total, 0]
+        extent2 = [0, n_patters, T_total, 0]
 
-    ax1.set_xlabel('Units')
-    ax1.set_ylabel('Time')
+        im1 = ax1.imshow(history['o'], aspect='auto', interpolation='None', cmap=cmap, vmax=1, vmin=0, extent=extent1)
+        ax1.set_title(title1)
 
-    im2 = ax2.imshow(angles, aspect='auto', interpolation='None', cmap=cmap, vmax=1, vmin=0, extent=extent2)
-    ax2.set_title('Angles with stored')
-    ax2.set_xlabel('Patterns')
+        ax1.set_xlabel('Units')
+        ax1.set_ylabel('Time (s)')
+
+        im2 = ax2.imshow(angles, aspect='auto', interpolation='None', cmap=cmap, vmax=1, vmin=0, extent=extent2)
+        ax2.set_title(title2)
+        ax2.set_xlabel('Patterns')
+
+    else:
+        extent1 = [0, T_total, 0, manager.nn.minicolumns * manager.nn.hypercolumns]
+        extent2 = [0, T_total, 0, n_patters]
+
+        im1 = ax1.imshow(history['o'].T, aspect='auto', origin='lower', cmap=cmap, vmax=1, vmin=0, extent=extent1)
+        ax1.set_title(title1)
+
+        ax1.set_xlabel('Time (s)')
+        ax1.set_ylabel('Units')
+
+        im2 = ax2.imshow(angles.T, aspect='auto', origin='lower', cmap=cmap, vmax=1, vmin=0, extent=extent2)
+        ax2.set_title(title2)
+        ax2.set_ylabel('Patterns')
+        ax2.set_xlabel('Time (s)')
 
     if ax is None:
+        fig.tight_layout()
         fig.subplots_adjust(right=0.8)
         cbar_ax = fig.add_axes([0.85, 0.12, 0.05, 0.79])
         fig.colorbar(im1, cax=cbar_ax)
+
+
 
     return [ax1, ax2]
 
