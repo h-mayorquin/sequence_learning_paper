@@ -41,13 +41,13 @@ def simple_bcpnn_matrix(minicolumns, w_self, w_next, w_rest, w_back):
 strict_maximum = True
 
 g_a = 1.0
-g_I = 10.0
+g_I = 2.0
 tau_a = 0.250
 G = 1.0
 sigma_out = 0.0
 tau_s = 0.010
 tau_z_pre = 0.025
-tau_z_post = 0.005
+tau_z_post = 0.020
 
 hypercolumns = 1
 minicolumns = 10
@@ -81,21 +81,21 @@ nn.w = w
 T_persistence = 0.100
 manager.set_persistent_time_with_adaptation_gain(T_persistence=T_persistence)
 
-nn.g_beta = 0.0
+nn.g_beta = 1.0
 
 # Recall
 T_recall = 1.0
 T_cue = 0.080
-I_cue = 0.0
-
-n = 1
+I_cue = 0
 
 manager.run_network_recall(T_recall=T_recall, T_cue=T_cue, I_cue=I_cue, reset=True, empty_history=True)
 
 
 # Extract quantities
-norm = matplotlib.colors.Normalize(0, n_patterns)
+n_add = 1
+norm = matplotlib.colors.Normalize(0, n_patterns + n_add)
 cmap = matplotlib.cm.inferno_r
+# cmap = matplotlib.cm.autumn
 
 o = manager.history['o']
 a = manager.history['a']
@@ -114,7 +114,7 @@ fig = plt.figure(figsize=(22, 12))
 # Captions
 if captions:
     size = 35
-    aux_x = 0.04
+    aux_x = 0.025
     fig.text(aux_x, 0.95, 'a)', size=size)
     fig.text(aux_x, 0.65, 'b)', size=size)
     fig.text(aux_x, 0.35, 'c)', size=size)
@@ -131,16 +131,16 @@ for pattern in range(n_patterns):
         label = 'Cue'
     else:
         label = str(pattern)
-
-    ax1.plot(time, o[:, pattern], color=cmap(norm(pattern)), linewidth=width, label=label)
-    ax2.plot(time, a[:, pattern], color=cmap(norm(pattern)), linewidth=width, label=label)
-    ax3.plot(time, i_ampa[:, pattern] - g_a * a[:, pattern], color=cmap(norm(pattern)),
+    color_index = pattern + n_add
+    ax1.plot(time, o[:, pattern], color=cmap(norm(color_index)), linewidth=width, label=label)
+    ax2.plot(time, a[:, pattern], color=cmap(norm(color_index)), linewidth=width, label=label)
+    ax3.plot(time, i_ampa[:, pattern] - nn.g_a * a[:, pattern], color=cmap(norm(color_index)),
             linewidth=width)
 
 
-ax1.set_title('Unit activity')
-ax2.set_title('Adaptation current')
-ax3.set_title('Self-Exc current minus adaptation')
+ax1.set_ylabel('o')
+ax2.set_ylabel('a')
+ax3.set_ylabel('s')
 
 ax3.axhline(w_next, ls='--', color='black', label=r'$w_{next}$')
 ax3.legend(frameon=False, loc=3)
@@ -148,14 +148,21 @@ ax3.set_xlabel('Time (s)')
 fig.tight_layout()
 
 # Here we plot our connectivity matrix
-rect = [0.46, 0.48, 0.40, 0.40]
+rect = [0.48, 0.48, 0.40, 0.40]
 # ax_conn = fig.add_subplot(gs[:2, 1])
 ax_conn = fig.add_axes(rect)
 
-ax_conn = plot_weight_matrix(manager, ax=ax_conn, vmin=vmin)
+ax_conn = plot_weight_matrix(manager, ax=ax_conn, vmin=vmin, title=False)
+ax_conn.set_xlabel('pre-synaptic unit')
+ax_conn.set_ylabel('post-synaptic unit')
 
+ax_conn.tick_params(axis='both', which='both', labelbottom=False, labelleft=False)
 
-
+# Modify the colorbar
+im = ax_conn.images        #this is a list of all images that have been plotted
+cbar = im[-1].colorbar
+cbar.set_ticks([-1, 0, 1])
+cbar.set_ticklabels([-1, 0, 1])
 if annotations:
     letter_color = 'black'
     ax_conn.annotate(r'$w_{next}$', xy=(0, 0.7), xytext=(0, 4.5), color=letter_color,
@@ -183,6 +190,5 @@ fig.legend(handles=handles, labels=labels, loc=(0.65, 0.09), fancybox=True, fram
            fontsize=28, ncol=2)
 
 
-# plt.show()
 fig.savefig('./plot_producers/simple_bcpnn_recall.pdf', frameon=False, dpi=110, bbox_inches='tight')
 plt.close()

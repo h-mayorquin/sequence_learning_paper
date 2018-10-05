@@ -77,7 +77,7 @@ def plot_weight_matrix(manager, one_hypercolum=True, ax=None, vmin=None, title=T
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes('right', size='5%', pad=0.05)
-        ax.get_figure().colorbar(im, ax=ax, cax=cax)
+        cb = ax.get_figure().colorbar(im, ax=ax, cax=cax)
 
     return ax
 
