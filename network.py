@@ -205,6 +205,7 @@ class NetworkManager:
         # Reinitialize the dictionary
         saving_dictionary = {'o': False, 's': False, 'a': False,
                              'z_pre': False, 'z_post': False, 'z_co': False,
+                             'p_pre': False, 'p_post': False, 'P': False,
                              'i': False, 'w': False, 'beta': False}
 
         # Activate the values passed to the function
@@ -222,6 +223,7 @@ class NetworkManager:
 
         self.history = {'o': empty_array, 's': empty_array, 'a': empty_array,
                         'z_pre': empty_array, 'z_post': empty_array, 'z_co': empty_array_square,
+                        'p_pre': empty_array, 'p_post': empty_array, 'P': empty_array_square,
                         'i': empty_array, 'w': empty_array_square, 'beta': empty_array}
 
     def append_history(self, history, saving_dictionary):
@@ -249,6 +251,12 @@ class NetworkManager:
             history['z_post'].append(np.copy(self.nn.z_post))
         if saving_dictionary['z_co']:
             history['z_co'].append(np.copy(self.nn.z_co))
+        if saving_dictionary['p_pre']:
+            history['p_pre'].append(np.copy(self.nn.p_pre))
+        if saving_dictionary['p_post']:
+            history['p_post'].append(np.copy(self.nn.p_post))
+        if saving_dictionary['P']:
+            history['P'].append(np.copy(self.nn.P))
         if saving_dictionary['w']:
             history['w'].append(np.copy(self.nn.w))
         if saving_dictionary['beta']:

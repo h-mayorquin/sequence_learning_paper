@@ -14,7 +14,10 @@ def get_w_pre_post(P, p_pre, p_post, epsilon=1e-20, diagonal_zero=True):
     # w = np.log(p * P) - np.log(outer)
     x = P / outer
     # w = np.log(x)
+    # P_qual zero and outer is bigger than epsilon
+    P_equal_zero = (P < epsilon) * (outer > epsilon)
     w = log_epsilon(P, epsilon) - log_epsilon(outer, epsilon)
+    w[P_equal_zero] = np.log10(epsilon)
 
     if diagonal_zero:
         w[np.diag_indices_from(w)] = 0

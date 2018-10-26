@@ -279,6 +279,22 @@ def calculate_get_weights_theo(T1, T2, Tt, tau_pre, tau_post, Tr=None, IPI=None)
 
 def calculate_triad_connectivity(tt1, tt2, tt3, ipi1, ipi2, tau_z_pre, tau_z_post,
                                  base_time, base_ipi, resting_time, n_patterns):
+    """
+    This function gives you the connectivity among a triad, assuming that all the other temporal structure outside of
+    the trial is homogeneus
+    :param tt1:
+    :param tt2:
+    :param tt3:
+    :param ipi1:
+    :param ipi2:
+    :param tau_z_pre:
+    :param tau_z_post:
+    :param base_time:
+    :param base_ipi:
+    :param resting_time:
+    :param n_patterns:
+    :return:
+    """
 
     Tt = (n_patterns - 3) * base_time + tt1 + tt2 + tt3 + ipi1 + ipi2 + \
          (n_patterns - 2) * base_ipi + resting_time
