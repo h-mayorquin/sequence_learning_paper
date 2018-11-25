@@ -42,10 +42,144 @@
 \subsection{Sequence Learning}
 Section with a brief history of sequence learning in computational nueroscience. Key papers, order, structure. 
 
-
+General observations.
 The problem started with Lashley \cite{lashley1951problem} Hebb reference. 
 
 The other papers
+
+Phenomena that involves time.
+The idea that if you multiply each of the notes by a frequency the melody still keeps its nature. The melody is more than its parts (relationship among them) \cite{von1988gestalt}. 
+
+The idea that you can get human movement from the movement of only some dots \cite{johansson1973visual}. 
+
+Getting texture information from contact with surfaces (spatio-temporal pattern) \cite{weber2013spatial}. 
+
+Dependence of the on the trained temporal interval
+\cite{johnson2010neural}.
+
+There is this experiment they test the Hippocampus through lesions as the seat of the capacity for path -sequence- disambiguation in rats. Some really interesting result is that is that if a memory delay is imposed upon the rat sequence disambiguation is imparired. Suggestion that the ability to perform such an action is living somewhere in the dynamical activity of the system \cite{agster2002hippocampus}. 
+
+\subsubsection*{Cue Triggered Recall}
+
+This is a paper about cue-recall in the visual cortex. It fits the idea of recall. 
+
+\textit{abstract}: Cue-triggered recall of learned temporal sequences is an important cognitive function that has been attributed to higher brain areas. Here recordings in both anesthetized and awake rats demonstrate that after repeated stimulation with a moving spot that evoked sequential firing of an ensemble of primary visual cortex (V1) neurons, just a brief flash at the starting point of the motion path was sufficient to evoke a sequential firing pattern that reproduced the activation order evoked by the moving spot.
+
+\cite{xu2012activity}
+
+\subsection{Experiments}
+
+\subsubsection*{Phill Paper}
+\textbf{Motor area papers}
+
+Prefrontal cortex in monkeys. Small ensembles of 3–22 cells, mean 9 cells). The idea is to show that that the patterns in the sequence were active from before. 
+\cite{averbeck2002parallel}
+
+
+Media motor areas, electrophysological recordings. Monkeys (Macaca fuscata).
+
+\textit{Abstract}: Although a well-known type of premovement activity representing the forthcoming movements was found in the two areas, we found an unexpected type of activity that represented a second-next movement before initiating the first of the two movements. Typically in the pre-SMA, such activity selective for the second-next movement peaked before the initiation of the first movement, decayed thereafter, and remained low in magnitude while initiating the second movement. This type of activity may tentatively hold information for the second movement while initiating the first. 
+
+The idea here is that there is some activity on the first unit that influences the second. 
+\cite{nakajima2009covert} 
+
+Monkey, (Macaca mulatta). Pre-motor cortex. 
+
+\textit{quote}: We report evidence about the existence of diverse degrees of \textbf{meta-stable dynamics in local cell assemblies}. They seem to be hierarchically organized in time as a web of heterogeneous cortical modules capable to produce fast transitions toward distributed and stereotyped representations of motor-related programs.
+
+This paper seems about motor planning. 
+\cite{mattia2013heterogeneous}
+
+
+\textbf{Sensory Area Papers}
+
+Gustatory cortex, rats. Electrophysiology. 
+
+This paper was about trying to show that some activity is lost in the trial average. It concluded that is better to qualify the activity as sequences of states. 
+
+\textit{quote}: reveals that taste processing can be characterized as a progression of reliably stimulus specific sequences of ensemble firing rate
+
+\cite{jones2007natural}
+
+Parietal cortex. Have not checked this paper properly.
+\cite{crowe2010rapid}
+
+\textbf{Memory}
+
+Monkeys (macata fuscata), visual memory task. Long term memory. Temporal cortex.
+
+This paper is about the temporal cortex as a seat of long term visual memory (excitation here evokes imagery)
+
+I could not find the sequences in this paper.
+\cite{miyashita1988neuronal}
+
+Experiments about location in a short-memory tasks. They were actually looking for firing rate sequences to model them as Hidden Markov Model. Monkeys. Recording of single-unit activity from the frontal areas around the upper limb of the arcuate sulcus.
+\cite{abeles1995cortical}
+
+Same structure than the last paper it seems (only read abstract). 
+\cite{seidemann1996simultaneously}
+
+The medial prefrontal cortex of the rat, in a working memory task. sequentially organized and transiently active neurons reliably differentiated between different trajectories of the rat in the maze
+
+\cite{fujisawa2008behavior} 
+
+\textbf{Decision Making}
+
+Rat. Anterior cingulate cortex. Navigation task. Ensembles of neurons move through different coherent and dissociable states as the cognitive requirements of the task change.
+
+Sequence fail is related to error on behavior. 
+\cite{lapish2008successful}
+
+
+The posterior parietal cortex (PPC). Optical imaging.  perceptual decision and memory-guided navigation in a virtual environment
+
+Distinct sequences of neurons were triggered on trials with opposite behavioural choices and defined divergent, choice-specific trajectories through a state space of neuronal population 
+
+During working memory decision tasks, the PPC may therefore perform computations through sequence-based circuit dynamics, rather than long-lived stable states, implemented using anatomically intermingled microcircuits
+
+Tied to beahvior
+
+\cite{harvey2012choice}
+
+\textbf{Reactivation in sleep}
+
+Patterns of firing-rate correlations between neurons in the rat medial prefrontal cortex during a repetitive sequence task were preserved during subsequent sleep, suggesting that waking patterns are reactivated
+
+Tetrodes. 
+\cite{euston2007fast}
+
+We found that spiking patterns not only in the cortex but also in the hippocampus were organized into frames, defined as periods of stepwise increase in neuronal population activity. The multicell firing sequences evoked by awake experience were replayed during these frames in both regions
+
+Rats. 
+\cite{ji2007coordinated}
+
+This paper I read before, weak evidence if I remember well. 
+\cite{almeida2014investigation}
+\subsubsection*{Murray Paper}
+
+\subsection{Models}
+
+\textbf{Levi Model}
+
+This is a spiking model. It has an assymetric learning rule for STDP which leads to an assymetric connectivity matrix. It forms sequences of cell assemblies that they call distributed synchrony. It has random input. Few sequences.
+No control of the persistent time \cite{levy2001distributed}.
+
+
+\textbf{Silvia Scarpetta model}
+
+Have not read this paper
+\cite{scarpetta2013associative}
+
+
+
+\textbf{Verduzco Paper}
+
+This and that
+\cite{verduzco2012model}
+
+\textbf{Minai Papers}
+
+This and that. 
 
 \subsection{The BCPNN}
 Explanation of what is the BCPNN, where does it come from, and some applications. 
@@ -131,11 +265,11 @@ It is important to note that in this case we utilized a tailor-made connectivity
 We can solve the deterministic equations analytical with the method of undetermined coefficients. There are two conditions, the unit that is active, and the unit that is not. 
 
 
-\begin{align*} 
-s(t) &= I_{fix} - g_a\left(\frac{C_{charge}}{1 - r} \right) e^{-\frac{t}{\tau_a}} + \left(s_0 - I_{fix} + g_a \left( \frac{C_{charge}}{1 - r}\right)\right)e^{-\frac{t}{\tau_s}} \\
-s(t) &= \beta + w - g_a + g_a \left(\frac{1 - a_0}{1 - r}\right) e^{-\frac{t}{\tau_a}} + \left(s_0 - \beta - w + g_a - g_a \frac{1 - a_0}{1 - r}\right) e^{-\frac{t}{\tau_s}}  \\ 
-s(t) &= \beta + w - g_a \left( \frac{a_0}{1 - r} \right) e^{-\frac{t}{\tau_a}} + \left(s_0 - \beta  - w  + g_a \left( \frac{a_0}{1 - r} \right) \right) e^{-\frac{t}{\tau_s}} 
-\end{align*}
+\begin{align} 
+s(t) &= I_{fix} - g_a\left(\frac{C_{charge}}{1 - r} \right) e^{-\frac{t}{\tau_a}} + \left(s_0 - I_{fix} + g_a \left( \frac{C_{charge}}{1 - r}\right)\right)e^{-\frac{t}{\tau_s}} \label{eq:deterministic_solution}\\
+\underset{acti}{s(t)} &= \beta + w - g_a + g_a \left(\frac{1 - a_0}{1 - r}\right) e^{-\frac{t}{\tau_a}} + \left(s_0 - \beta - w + g_a - g_a \frac{1 - a_0}{1 - r}\right) e^{-\frac{t}{\tau_s}}  \\ 
+\underset{inact}{s(t)} &= \beta + w - g_a \left( \frac{a_0}{1 - r} \right) e^{-\frac{t}{\tau_a}} + \left(s_0 - \beta  - w  + g_a \left( \frac{a_0}{1 - r} \right) \right) e^{-\frac{t}{\tau_s}} 
+\end{align}
 
 Where $r=\frac{\tau_s}{\tau_a}$ and $C_{charge}=a_0$ for the non-active case and $C_{charge} = a_0 - 1$ for the active case. Same for $I_{fix}=\beta + w$ for the non-active case and $I_{fix} = \beta + w - g_a$ for the active case.  
 
@@ -650,7 +784,76 @@ We have studied above the effects of the training protocol we can study the effe
 \section{The problem Of Complex Sequences}
 Here it is one paper \cite{guyon1988storage}
 
-\bibliographystyle{unsrt}
+\section{z-traces as activations}
+
+If we assume that the currents adapt instantaneously to the currents ($\tau_s \to 0$) at the point where the unit $n$ is activated we have
+
+\begin{align*}
+s_{n + 1}(t) &= c_{n + 1}(t) + \beta_{n + 1}  \\
+s_n(t) &= c_{n}(t) +  \beta_n  - a(t)
+\end{align*}
+
+We need the find at which this currents are equal
+$s_{n + 1}(t) = s_{n}$ which is equivalent to the point in which the difference on the currents $c(t)$ are equivalent to the adaptation. 
+
+\begin{align*}
+g_a ( 1 - e^{\frac{-t}{\tau_a}})  = \Delta \beta  + \underbrace{(c_n(t) - c_{n + 1}(t))}_{A} 
+\end{align*}
+
+We want an expression for A, we know that that the terms of $z_k(t) = 0$ for $k > n$ (those units have not been activated before) so we have:
+
+\begin{align*}
+A &= \sum\limits_{k=0}^{n} (w_{n, k} - w_{n + 1, k})z_k(t) \\
+A &= (w_{self} - w_{next})( 1 - e^{\frac{-t}{\tau_z}}) \\
+ &+ \underbrace{\alpha}_{w_{rest} - w_{next}} e^{\frac{-t}{\tau_z}}(1 - e^{\frac{-T_{per}}{\tau_z}}) \underbrace{\sum\limits_{k=0}^{n}e^{\frac{kT_{per}}{\tau_z}}}_{geometric \: series} \\
+\end{align*}
+
+The term in the geometric series is equal to $\frac{(1 - e^{\frac{-nT}{\tau_z}})}{(1 - e^{\frac{-T}{\tau_z}})}$. Her we used the fact that the connectivity matrix produced with the BCPNN learning rule is linear in the differences between the weights ($\alpha$). 
+
+We therefore have:
+
+\begin{align*}
+g_a ( 1 - e^{\frac{-t}{\tau_a}}) &= \Delta \beta  + (w_{self} - w_{next})( 1 - e^{\frac{-t}{\tau_z}}) + \alpha e^{\frac{-t}{\tau_z}} (1 - e^{\frac{-nT}{\tau_z}})
+\end{align*}
+
+If we assume that n is big enough that the term in the right becomes 1 we can solve the following equation for getting the persistent time:
+
+\begin{align*}
+g_a ( 1 - e^{\frac{-t}{\tau_a}}) &= \Delta \beta  + (w_{self} - w_{next})( 1 - e^{\frac{-t}{\tau_z}}) +   \alpha e^{\frac{-t}{\tau_z}} 
+\end{align*}
+
+For small persistent times with respect to $\tau_z$ and $\tau_a$ this can be approximated by:
+
+\begin{align*}
+T_{per} = \frac{B + \frac{\Delta w_{rest}}{g_a}}{\frac{1}{\tau_a} + \frac{\Delta w_{rest}}{g_a \tau_z}}
+\end{align*}
+
+\subsection*{Decomposing only one of the currents}
+
+The solution for the deterministic trajectories of the currents as is 	
+
+We need to find an expression for the term $c_n(t) =\sum\limits_{k=0}^{N} w_{n, n - k} z_{n - k}(t)$ to find the current at each point in time at the $n$ pattern in a sequence. Where N is the sequence length
+
+We can decompose the term in the following way
+
+\begin{align*}
+c_n(t) = w_s (1 - e^{\frac{-t}{\tau_z}}) + w_n (1 - e^{\frac{-T_{per}}{\tau_z}})e^{\frac{-t}{\tau_z}} + w_{rest}(1 - e^{
+\frac{-T_{per}}{\tau_z}}) \left(\sum\limits_{k=1}^{n -1} k  e^{-kT_{per}} \right) e^{\frac{-t}{\tau_z}} 
+\end{align*}
+
+
+\subsection*{Solve the differential equation for small $\tau_z$}
+The general expression for the current if the $T_{per}$ is big compared to $\tau_z$. 
+
+\begin{align}
+\underset{act}{s(t)} &= \beta + w_s - g_a - \frac{X_1}{1 - r_z}e^{\frac{-t}{\tau_z}} + g_a e^{\frac{-t}{\tau_a}} \\
+&+ \left(s_0 - \beta - w_s + g_a + \frac{w}{1 - r_z} - \frac{g_a}{1 - r_a}\right)e^{\frac{-t}{\tau_s}} \nonumber \\
+\underset{inac}{s(t)} &= \beta + w_n - \frac{X_2}{1 - r_z} e^{\frac{-t}{\tau_z}} + \left(s_o - \beta - w_s +  \frac{X_z}{1 - r_z}  \right) e^{\frac{-t}{\tau_s}}
+\end{align}
+
+Where $X_1 = w_s - w_n + w_n e^{\frac{T}{\tau_z}}$ and $X_2 = w_n - w_r + w_r e^{\frac{-t}{\tau_a}}$
+
+\bibliographystyle{apalike}
 \bibliography{references.bib}
 
 \end{document}

@@ -1,48 +1,52 @@
 This is BibTeX, Version 0.99d (TeX Live 2013/Debian)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: bcpnn_sequence_learning.aux
-The style file: unsrt.bst
+The style file: apalike.bst
 Database file #1: references.bib.bib
+Repeated entry---line 412 of file references.bib.bib
+ : @article{guyon1988storage
+ :                          ,
+I'm skipping whatever remains of this entry
 Warning--empty publisher in lashley1951problem
-You've used 8 entries,
-            1791 wiz_defined-function locations,
-            503 strings with 4884 characters,
-and the built_in function-call counts, 1980 in all, are:
-= -- 174
-> -- 84
-< -- 1
-+ -- 31
-- -- 23
-* -- 148
-:= -- 312
-add.period$ -- 24
-call.type$ -- 8
-change.case$ -- 8
-chr.to.int$ -- 0
-cite$ -- 9
-duplicate$ -- 81
-empty$ -- 198
-format.name$ -- 23
-if$ -- 438
-int.to.chr$ -- 0
-int.to.str$ -- 8
-missing$ -- 7
-newline$ -- 42
-num.names$ -- 8
-pop$ -- 20
+You've used 31 entries,
+            1935 wiz_defined-function locations,
+            678 strings with 9748 characters,
+and the built_in function-call counts, 13710 in all, are:
+= -- 1331
+> -- 629
+< -- 11
++ -- 226
+- -- 216
+* -- 1257
+:= -- 2366
+add.period$ -- 92
+call.type$ -- 31
+change.case$ -- 262
+chr.to.int$ -- 31
+cite$ -- 32
+duplicate$ -- 468
+empty$ -- 919
+format.name$ -- 254
+if$ -- 2647
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 30
+newline$ -- 157
+num.names$ -- 93
+pop$ -- 206
 preamble$ -- 1
-purify$ -- 0
+purify$ -- 262
 quote$ -- 0
-skip$ -- 38
+skip$ -- 364
 stack$ -- 0
-substring$ -- 160
-swap$ -- 17
-text.length$ -- 1
+substring$ -- 1057
+swap$ -- 65
+text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 0
+type$ -- 186
 warning$ -- 1
-while$ -- 19
-width$ -- 9
-write$ -- 87
-(There was 1 warning)
+while$ -- 111
+width$ -- 0
+write$ -- 401
+(There was 1 error message)

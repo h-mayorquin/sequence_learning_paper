@@ -115,10 +115,10 @@ fig = plt.figure(figsize=(22, 12))
 if captions:
     size = 35
     aux_x = 0.025
-    fig.text(aux_x, 0.95, 'a)', size=size)
-    fig.text(aux_x, 0.65, 'b)', size=size)
-    fig.text(aux_x, 0.35, 'c)', size=size)
-    fig.text(0.55, 0.95, 'd)', size=size)
+    fig.text(aux_x, 0.95, 'A', size=size)
+    fig.text(aux_x, 0.65, 'B', size=size)
+    fig.text(aux_x, 0.35, 'C', size=size)
+    fig.text(0.55, 0.95, 'D', size=size)
     # fig.text(0.5, 0.40, 'e)', size=size)
 
 ax1 = fig.add_subplot(gs[0, 0])
