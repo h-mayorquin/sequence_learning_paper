@@ -152,9 +152,9 @@ rect = [0.48, 0.48, 0.40, 0.40]
 # ax_conn = fig.add_subplot(gs[:2, 1])
 ax_conn = fig.add_axes(rect)
 
-ax_conn = plot_weight_matrix(manager, ax=ax_conn, vmin=vmin, title=False)
-ax_conn.set_xlabel('pre-synaptic unit')
-ax_conn.set_ylabel('post-synaptic unit')
+ax_conn = plot_weight_matrix(manager, ax=ax_conn, vmin=vmin, title=False, transpose=True)
+ax_conn.set_ylabel('pre-synaptic unit')
+ax_conn.set_xlabel('post-synaptic unit')
 
 ax_conn.tick_params(axis='both', which='both', labelbottom=False, labelleft=False)
 
@@ -165,16 +165,16 @@ cbar.set_ticks([-1, 0, 1])
 cbar.set_ticklabels([-1, 0, 1])
 if annotations:
     letter_color = 'black'
-    ax_conn.annotate(r'$w_{next}$', xy=(0, 0.7), xytext=(0, 4.5), color=letter_color,
+    ax_conn.annotate(r'$w_{self}$', xy=(0, -0.5), xytext=(0.25, 4.5), color=letter_color,
                      arrowprops=dict(facecolor='red', shrink=0.15))
 
-    ax_conn.annotate(r'$w_{self}$', xy=(0.0, 0), xytext=(4, 2), color=letter_color,
+    ax_conn.annotate(r'$w_{next}$', xy=(0.8, 0), xytext=(5, 1), color=letter_color,
                 arrowprops=dict(facecolor='red', shrink=0.05))
 
-    ax_conn.annotate(r'$w_{back}$', xy=(4.9, 4.0), xytext=(6.8, 3.5), color=letter_color,
+    ax_conn.annotate(r'$w_{rest}$', xy=(4.9, 3.0), xytext=(6.8, 3.5), color=letter_color,
                 arrowprops=dict(facecolor='red', shrink=0.05))
 
-    ax_conn.annotate(r'$w_{rest}$', xy=(4, 6), xytext=(2.5, 9.0), color=letter_color,
+    ax_conn.annotate(r'$w_{back}$', xy=(4, 4.8), xytext=(2.5, 8.0), color=letter_color,
                 arrowprops=dict(facecolor='red', shrink=0.05))
 
 
