@@ -344,8 +344,8 @@ def calculate_triad_connectivity(tt1, tt2, tt3, ipi1, ipi2, tau_z_pre, tau_z_pos
     beta3 = np.log10(p3_post)
 
     # Bs (un-normalized)
-    B12 = w11 - w12 + beta2 - beta1
-    B13 = w11 - w31 + beta3 - beta1
+    B12 = w22 - w12 + beta2 - beta1
+    B13 = w33 - w13 + beta3 - beta1
     B21 = w11 - w21 + beta1 - beta2
     B23 = w33 - w32 + beta3 - beta2
     B31 = w11 - w31 + beta1 - beta3
