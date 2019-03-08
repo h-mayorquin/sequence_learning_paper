@@ -174,7 +174,7 @@ if annotations:
     ax_conn.annotate(r'$w_{rest}$', xy=(4.9, 3.0), xytext=(6.8, 3.5), color=letter_color,
                 arrowprops=dict(facecolor='red', shrink=0.05))
 
-    ax_conn.annotate(r'$w_{back}$', xy=(4, 4.8), xytext=(2.5, 8.0), color=letter_color,
+    ax_conn.annotate(r'$w_{prev}$', xy=(4, 4.8), xytext=(2.5, 8.0), color=letter_color,
                 arrowprops=dict(facecolor='red', shrink=0.05))
 
 
